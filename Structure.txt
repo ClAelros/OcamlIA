@@ -1,0 +1,54 @@
+﻿Types
+
+
+Vecteur
+Horizontal
+Vertical
+Somme (horizontal + vertical)
+Opposé
+
+
+Mouvement
+Vecteur
+Taille min
+Taille max
+
+
+Pièce
+Nom
+Liste mouvements
+
+
+Player
+Rôle (1 ou 2)(ie proie ou prédateur)
+Pièce
+x
+y
+
+
+Position (peut-être utilisée plus tard)
+x
+y
+
+
+Fonctions
+
+
+Création pièce
+Création joueur
+Création grille (au moins largeur, longueur)
+
+
+Déplacer (player, x, y)
+
+
+Mouvements possibles : Renvoie la liste des mvts possibles
+
+
+Play :boucle
+
+
+Display : Affichage (pour l’instant, 0 partout sauf là où il y a des players)
+
+
+Proie attrapée : Définit à quelle condition on considère que la proie est attrapée
