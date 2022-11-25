@@ -76,7 +76,7 @@ let rec possible_move = fun lst x y nb_x nb_y ->
   match lst with 
   [] -> []
   | h::t -> let p_x = read_vect_x h in let p_y = read_vect_y h in 
-                      if (x+p_x >= 0)
+                      if (x+p_x >= 0 &&)
 
 
 (*main*)
