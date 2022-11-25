@@ -5,7 +5,7 @@ Vecteur
 Horizontal
 Vertical
 Somme (horizontal + vertical)
-Oppos
+Opposé
 
 
 Mouvement
