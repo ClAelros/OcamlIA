@@ -72,10 +72,12 @@ let rec init_player_move_v4 = fun nb_move l1 -> (*init piece*)
     let new_move = {move = make_vect h v; taille_min = t_min; taille_max = t_max} in 
     init_player_move_v4 (nb_move-1) (new_move::l1)
 
+let 
+
 let rec possible_move = fun lst x y nb_x nb_y ->
   match lst with 
   [] -> []
-  | h::t -> let p_x = read_vect_x h in let p_y = read_vect_y h in 
+  | h::t -> let p_x = read_vect_x h.move in let p_y = read_vect_y h.move in 
                       if (x+p_x >= 0 &&)
 
 
