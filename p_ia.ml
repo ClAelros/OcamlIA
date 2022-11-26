@@ -1,3 +1,8 @@
+(*Pour installer Ocaml : https://www.youtube.com/watch?v=-yabnyUL4-U*)
+
+let nb_l = ref 0 (*nombre de ligne *)
+let nb_c = ref 0 (*nombre de colonne *)
+
 type vect = 
   Horizontal of int
   | Vertical of int 
@@ -28,10 +33,34 @@ type position = {
   y : int 
 }
 
+let v1 = Vertical 1 
+let v2 = Horizontal 1 
+let v3 = Sum(v1, v2)
+let v4 = Sum(v1,(Opp v2))
+let v5 = Opp v1 
+let v6 = Opp v2
+let v7 = Opp v3 
+let v8 = Opp v4 
+
+let m1 = {vecteur = v1; taille_min = 1; taille_max =2}
+let m2 = {vecteur = v2; taille_min = 1; taille_max =2}
+let m3 = {vecteur = v3; taille_min = 1; taille_max =2}
+let m4 = {vecteur = v4; taille_min = 1; taille_max =2}
+let m5 = {vecteur = v5; taille_min = 1; taille_max =2}
+let m6 = {vecteur = v6; taille_min = 1; taille_max =2}
+let m7 = {vecteur = v7; taille_min = 1; taille_max =2}
+let m8 = {vecteur = v8; taille_min = 1; taille_max =2}
+
+let reine = {name = "Reine"; move = [m1;m2;m3;m4;m5;m6;m7;m8]}
+
+let p1 = {role = 1; genre = reine; pos_x = 0; pos_y = 0}
+
 let board_game = fun nb_lignes nb_colonnes -> 
   Array.make_matrix nb_lignes nb_colonnes 0
 
 let start_pos = fun pos_mouse_x pos_mouse_y pos_cat_x pos_cat_y bd -> (*a revoir peut etre une liste de joueur suivant si on veut jouer avec plusieur chat ou souriss*)
+  nb_l := nb_lignes;
+  nb_c := nb_colonnes;
   bd.(pos_mouse_x).(pos_mouse_y) <- 1 ; 
   bd.(pos_cat_x).(pos_cat_y) <- 2 
 
@@ -49,18 +78,18 @@ let make_vect = fun x y ->
   Sum(Horizontal x, Vertical y)
 
 let rec read_vect_x = fun v -> 
-  math v with
+  match v with
   Horizontal x -> x
   | Vertical y -> 0
   | Sum (x, y) -> (read_vect_x x)+(read_vect_x y)
   | Opp v -> (-1)*(read_vect_x v)
 
 let rec read_vect_y = fun v -> 
-  math v with
+  match v with
   Horizontal x -> 0
   | Vertical y -> y
-  | Sum (x, y) -> (read_vect_x x)+(read_vect_x y)
-  | Opp v -> (-1)*(read_vect_x v)
+  | Sum (x, y) -> (read_vect_y x)+(read_vect_y y)
+  | Opp v -> (-1)*(read_vect_y v)
 
 let rec init_player_move_v4 = fun nb_move l1 -> (*init piece*)
   if nb_move = 0 then l1 
@@ -72,13 +101,25 @@ let rec init_player_move_v4 = fun nb_move l1 -> (*init piece*)
     let new_move = {move = make_vect h v; taille_min = t_min; taille_max = t_max} in 
     init_player_move_v4 (nb_move-1) (new_move::l1)
 
-let 
+let fct2 = fun m x y -> 
+  let p_x = read_vect_x m.vecteur in 
+  let p_y = read_vect_y m.vecteur in 
+  let taille = m.taille_max in 
+  let rec test_taille = fun t -> 
+    if t<m.taille_min then 0
+    else 
+      if ((x + t*p_x >= 0) && (x + t*p_x <= (!nb_c-1))) && ((y + t*p_y >= 0) && (y + t*p_y <= (!nb_l-1))) then t 
+      else test_taille (t-1) 
+  in test_taille taille 
 
-let rec possible_move = fun lst x y nb_x nb_y ->
-  match lst with 
-  [] -> []
-  | h::t -> let p_x = read_vect_x h.move in let p_y = read_vect_y h.move in 
-                      if (x+p_x >= 0 &&)
+let possible_move = fun joueur -> 
+  let rec view_list = fun lst return -> 
+    match lst with 
+    [] -> return 
+    | h::t -> let new_taille = fct2 h (joueur.pos_x) (joueur.pos_y) in 
+            if new_taille != 0 then let new_move = {vecteur = h.vecteur; taille_min = h.taille_min; taille_max = new_taille} in view_list t (new_move::return)
+            else view_list t return 
+  in view_list (joueur.genre.move) []
 
 
 (*main*)
