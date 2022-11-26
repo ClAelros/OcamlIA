@@ -121,6 +121,8 @@ let possible_move = fun joueur ->
             else view_list t return 
   in view_list (joueur.genre.move) []
 
+  
+
 
 (*main*)
 let () =
