@@ -51,9 +51,20 @@ let m6 = {vecteur = v6; taille_min = 1; taille_max =2}
 let m7 = {vecteur = v7; taille_min = 1; taille_max =2}
 let m8 = {vecteur = v8; taille_min = 1; taille_max =2}
 
+let m9 = {vecteur = v1; taille_min = 1; taille_max =1}
+let m10 = {vecteur = v2; taille_min = 1; taille_max =1}
+let m11 = {vecteur = v3; taille_min = 1; taille_max =1}
+let m12 = {vecteur = v4; taille_min = 1; taille_max =1}
+let m13 = {vecteur = v5; taille_min = 1; taille_max =1}
+let m14 = {vecteur = v6; taille_min = 1; taille_max =1}
+let m15 = {vecteur = v7; taille_min = 1; taille_max =1}
+let m16 = {vecteur = v8; taille_min = 1; taille_max =1}
+
 let reine = {name = "Reine"; move = [m1;m2;m3;m4;m5;m6;m7;m8]}
+let roi = {name = "Roi"; move = [m9;m10;m11;m12;m13;m14;m15;m16]}
 
 let p1 = {role = 1; genre = reine; pos_x = 0; pos_y = 0}
+let p2 = {role = 2; genre = roi; pos_x = 1; pos_y = 1} (*a modif*)
 
 let board_game = fun nb_lignes nb_colonnes -> 
   Array.make_matrix nb_lignes nb_colonnes 0
@@ -121,7 +132,49 @@ let possible_move = fun joueur ->
             else view_list t return 
   in view_list (joueur.genre.move) []
 
-  
+let rec concatenate = fun lst1 lst2 -> 
+  match lst1 with 
+  [] -> lst2 
+  | h::t -> h :: concatenate t lst2 
+
+let move_to_pos = fun m pos_x pos_y -> 
+  let rec constr = fun i -> 
+    if i < m.taille_min then []
+    else 
+      let x = read_vect_x m.vecteur in 
+      let y = read_vect_y m.vecteur in 
+      let new_pos = {x = pos_x + x; y = pos_y + y} in 
+      new_pos :: constr (i-1)
+  in constr m.taille_max  
+
+let possible_pos = fun joueur -> 
+  let lst_move = possible_move joueur in 
+  let rec build_list = fun lst_m return -> 
+    match lst_m with 
+    [] -> return 
+    | h::t -> let lst_pos = move_to_pos h joueur.pos_x joueur.pos_y in build_list t (concatenate lst_pos return)
+  in build_list lst_move []
+
+let move_player = fun joueur pos -> 
+  joueur.pos_x <- pos.x ;
+  joueur.pos_y <- pos.y 
+
+let verif_pos = fun lst_pos pos -> 
+  List.mem pos lst_pos
+
+let display_v2 = fun j1 j2 -> (*voir comment changer la couleur du texte en affichage et passer en parametre une liste de pos pour les mettre en rouge*)
+  for i=0 to !nb_c-1 do 
+    for j=0 to !nb_l-1 do 
+      if i = j1.pos_x && j = j1.pos_y then 
+        if j1.role = 1 then Printf.printf "s "
+        else Printf.printf "c "
+      else if i = j2.pos_x && j = j2.pos_y then
+        if j2.role = 1 then Printf.printf "s "
+        else Printf.printf "c "
+      else Printf.printf "¤ "
+    done;
+    Printf.printf "\n";
+  done
 
 
 (*main*)
