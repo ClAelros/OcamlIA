@@ -143,7 +143,7 @@ let move_to_pos = fun m pos_x pos_y ->
     else 
       let x = read_vect_x m.vecteur in 
       let y = read_vect_y m.vecteur in 
-      let new_pos = {x = pos_x + x; y = pos_y + y} in 
+      let new_pos = {x = pos_x + i*x; y = pos_y + i*y} in 
       new_pos :: constr (i-1)
   in constr m.taille_max  
 
@@ -162,6 +162,13 @@ let move_player = fun joueur pos ->
 let verif_pos = fun lst_pos pos -> 
   List.mem pos lst_pos
 
+let is_win = fun lst_pos_cat mouse -> 
+  let pos_mouse = {x = mouse.pos_x; y = mouse.pos_y} in 
+  verif_pos lst_pos_cat pos_mouse 
+
+
+  
+
 let display_v2 = fun j1 j2 -> (*voir comment changer la couleur du texte en affichage et passer en parametre une liste de pos pour les mettre en rouge*)
   for i=0 to !nb_c-1 do 
     for j=0 to !nb_l-1 do 
@@ -176,12 +183,92 @@ let display_v2 = fun j1 j2 -> (*voir comment changer la couleur du texte en affi
     Printf.printf "\n";
   done
 
+let rec display_vect = fun v ->
+  match v with 
+  Horizontal x -> Printf.printf "Horizontal %d" (x)
+  | Vertical y -> Printf.printf "Vertical %d" (y)
+  | Sum (x,y) -> let () = Printf.printf "Sum (" in 
+    let () = display_vect x in 
+    let () = Printf.printf ", " in 
+    let () = display_vect y in 
+    Printf.printf ")"
+  | Opp v -> let () = Printf.printf "Opp (" in 
+    let () = display_vect v in  
+    Printf.printf ")"
+
+let display_move = fun m -> 
+  let () = Printf.printf "{vecteur : " in 
+  let () = display_vect m.vecteur in 
+  let () = Printf.printf "; taille_min : %d; taille_max : %d}" m.taille_min m.taille_max in 
+  print_newline () 
+
+let display_lst_move = fun lst_m -> 
+  let () = Printf.printf "[" in 
+  let rec display_list = fun lst -> 
+    match lst with
+    [] -> Printf.printf "]" 
+    | h::t -> let() = display_move h in 
+      let () = Printf.printf "; " in 
+      display_list t 
+  in let () = display_list lst_m in 
+  print_newline () 
+
+let display_pos = fun pos -> 
+  Printf.printf "(%d, %d)\n" pos.y pos.x   (*a voir si on met pos.x pos.y ou comme ca*)
+
+let display_lst_pos = fun lst_pos ->
+  let () = Printf.printf "[" in 
+  let rec display_list = fun lst -> 
+    match lst with 
+    [] -> Printf.printf "]" 
+    | h::t -> let () = display_pos h in 
+      let () = Printf.printf "; " in 
+      display_list t 
+  in let () = display_list lst_pos in 
+  print_newline () 
+
+let display_v3 = fun j1 j2 -> (*voir comment changer la couleur du texte en affichage et passer en parametre une liste de pos pour les mettre en rouge*)
+  for i=0 to !nb_c-1 do 
+    for j=0 to !nb_l-1 do 
+      if i = j1.pos_x && j = j1.pos_y then 
+        if j1.role = 1 then Printf.printf "s "
+        else Printf.printf "c "
+      else if i = j2.pos_x && j = j2.pos_y then
+        if j2.role = 1 then Printf.printf "s "
+        else Printf.printf "c "
+      else Printf.printf "¤ "
+    done;
+    Printf.printf "   %d\n" i;
+  done;
+  Printf.printf "\n";
+  for j=0 to !nb_l-1 do 
+    Printf.printf "%d " j;
+  done;
+  print_newline ()  (*a droite c'est les y et a gauche les x juste changer le display des position sinon*)
+
+
 
 (*main*)
 let () =
-  let bd = board_game 5 5 in 
-    start_pos 0 0 4 4 bd; 
-    display_board2 bd;
+  nb_c := 8;
+  nb_l := 8;
+  display_vect v1; 
+  print_newline (); 
+  display_vect v2; 
+  print_newline ();
+  display_vect v3; 
+  print_newline ();
+  display_vect v7; 
+  print_newline ();
+  display_move m3; 
+  let lst = possible_move p1 in 
+  display_lst_move lst; 
+  let pos = {x = 0; y = 0} in 
+  display_pos pos; 
+  let lst2 = possible_pos p1 in 
+  display_lst_pos lst2; 
+  display_v3 p1 p2
+
 
 (*sys.argv ou un modele sys qui fait ca ou on peut avoir des arguments optionnels
    plus que de rentrer les infos à la suite
