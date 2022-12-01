@@ -281,4 +281,5 @@ let () =
    -> pouvoir rentrer la position de départ de chaque joueur
    -> pouvoir créer des mouvement et des joueurs personalises 
    -> pouvoir rentrer la taille de la grille
+   -> faut voir aussi si le chat est un obstacle au deplacement -> pour l'instant on peut jouer sur lui 
    (facultatif)-> changer l'affichage pour mettre en rouge les positions jouables et avoir le numéro de la position directement sur la grille*)
