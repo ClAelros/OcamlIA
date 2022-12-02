@@ -239,6 +239,40 @@ let display_v4 = fun j1 j2 lst_pos ->
   done;
   print_newline ()  
 
+let init_lst_move = fun () -> 
+  let rec init_lst_move_rec = fun x lst -> 
+    if x = 0 then lst 
+    else 
+      let () = print_endline "Veuillez entrer la composante horizontale du vecteur du mouvement" in 
+      let h = Scanf.scanf "%d\n" (fun x -> x) in
+      let () = print_endline "Veuillez entrer la composante verticale du vecteur du mouvement " in
+      let v = Scanf.scanf "%d\n" (fun x -> x) in
+      let () = print_endline "Veuillez entrer la taille maximum du mouvement (>= 1)" in 
+      let t_max = Scanf.scanf "%d\n" (fun x -> x) in
+      let () = print_endline "Veuillez entrer la taille minimale du mouvement (>=1)" in
+      let t_min = Scanf.scanf "%d\n" (fun x -> x) in
+      if (t_max < 1 || t_min < 1) then 
+        let () = print_endline "Mouvement non valide, veuillez recommencer" in 
+        init_lst_move_rec 1 lst 
+      else
+        let new_move = {vecteur = make_vect h v; taille_min = t_min; taille_max = t_max} in
+        let () = print_endline "Voulez vous entrer un autre mouvement ? Tapez 1 pour continuer 0 pour arreter" in 
+        let y = Scanf.scanf "%d\n" (fun x -> x) in 
+        init_lst_move_rec y (new_move::lst)
+  in init_lst_move_rec 1 []
+  
+let init_player = fun () -> 
+  let () = print_endline "Veuillez entrer le role de votre joueur : Souris : 1 Chat : 2" in 
+  let r = Scanf.scanf "%d\n" (fun x->x) in 
+  let () = print_endline "Veuillez entrer la liste de mouvement pour votre joueur :" in 
+  let lst_move = init_lst_move () in 
+  let () = print_endline "Veuillez entree le nom de la piece qui represente votre joueur" in 
+  let n = Scanf.scanf "%s\n" (fun x->x) in 
+  let i = 0 in 
+  let j = 0 in 
+  let p = {name = n; move = lst_move} in 
+  {role = r; genre = p; pos_x = i; pos_y = j}    
+
 let play = fun mouse cat -> (*faudra voir qui joue en premier chat ou souris ?*) (*Faudra rajouter un compteur pour savoir quand la souris gagne*)
   let () = print_endline "Veuillez entrer le numéro de la position pour jouer ou 0 pour quitter" in 
   let gg = ref true in 
@@ -279,7 +313,7 @@ let () =
 
 (*Les petits ajouts a faire :
    -> pouvoir rentrer la position de départ de chaque joueur
-   -> pouvoir créer des mouvement et des joueurs personalises 
+   -> pouvoir créer des mouvement et des joueurs personalises V -> reste plus qu'a l'integrer dans play 
    -> pouvoir rentrer la taille de la grille
    -> faut voir aussi si le chat est un obstacle au deplacement -> pour l'instant on peut jouer sur lui 
    (facultatif)-> changer l'affichage pour mettre en rouge les positions jouables et avoir le numéro de la position directement sur la grille*)
