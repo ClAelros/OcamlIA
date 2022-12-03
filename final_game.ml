@@ -271,7 +271,19 @@ let init_player = fun () ->
   let i = 0 in 
   let j = 0 in 
   let p = {name = n; move = lst_move} in 
-  {role = r; genre = p; pos_x = i; pos_y = j}    
+  {role = r; genre = p; pos_x = i; pos_y = j} 
+  
+let rec choose_player = fun ()-> 
+  let () = print_endline "Veuillez choisir votre joueur : \nPour personalisez un joueur taper 1 pour choisir un joueur deja existant taper 2" in 
+  let c = Scanf.scanf "%d\n" (fun x->x) in 
+  if (c < 1 || c > 2) then let () = print_endline "Mauvais choix, recommencer" in choose_player () 
+  else 
+    if c = 1 then init_player () 
+    else 
+      let () = print_endline "Vous avez le choix : \nRoi -> 1 \nReine -> 2" in 
+      let p = Scanf.scanf "%d\n" (fun x->x) 
+      if p = 1 then p1 else p2 
+  
 
 let play = fun mouse cat -> (*faudra voir qui joue en premier chat ou souris ?*) (*Faudra rajouter un compteur pour savoir quand la souris gagne*)
   let () = print_endline "Veuillez entrer le numéro de la position pour jouer ou 0 pour quitter" in 
