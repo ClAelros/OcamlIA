@@ -20,15 +20,15 @@ type piece = {
 
 type player = {
   (*nb_move : int;*)
-  role : int; (*chat ou souris*)  (*faire des flushs -> a voir comment en ocaml -> flush stdout *)
+  role : int; (*chat ou souris*)  (*faire des flushs -> a voir comment en ocaml -> flush stdout *) (*1 pour souris 2 pour chat*)
   genre : piece; 
-  mutable pos_x : int;
-  mutable pos_y : int 
+  mutable pos_i : int;
+  mutable pos_j : int 
 }
 
 type position = {
-  x : int;
-  y : int 
+  i : int; (*position sur les lignes*)
+  j : int (*position sur les colonnes*)
 }
 
 let v1 = Vertical 1 
@@ -61,13 +61,16 @@ let m16 = {vecteur = v8; taille_min = 1; taille_max =1}
 let reine = {name = "Reine"; move = [m1;m2;m3;m4;m5;m6;m7;m8]}
 let roi = {name = "Roi"; move = [m9;m10;m11;m12;m13;m14;m15;m16]}
 
-let p1 = {role = 1; genre = reine; pos_x = 0; pos_y = 0}
-let p2 = {role = 2; genre = roi; pos_x = 4; pos_y = 4} (*a modif*)
+let p1 = {role = 1; genre = reine; pos_i = 0; pos_j = 0}
+let p2 = {role = 2; genre = roi; pos_i = 4; pos_j = 4} (*a modif*)
 
-let impossible_pos = {x = -1; y = -1}
+let impossible_pos = {i = -1; j = -1}
 
 let make_vect = fun x y ->
-  Sum(Horizontal x, Vertical y)
+  if x > 0 && y >0 then Sum(Horizontal x, Vertical y)
+  else if x < 0 && y >0 then Sum(Opp (Horizontal (-x)), Vertical y)
+  else if x > 0 && y <0 then Sum(Horizontal x, Opp (Vertical (-y)))
+  else Sum(Opp (Horizontal (-x)), Opp (Vertical (-y))) 
 
 let rec read_vect_h = fun v -> 
   match v with
@@ -83,14 +86,14 @@ let rec read_vect_v = fun v ->
   | Sum (x, y) -> (read_vect_v x)+(read_vect_v y)
   | Opp v -> (-1)*(read_vect_v v)
 
-let fct2 = fun m x y -> 
-  let p_x = read_vect_h m.vecteur in 
-  let p_y = read_vect_v m.vecteur in 
+let new_taille_move = fun m i j -> 
+  let p_j = read_vect_h m.vecteur in 
+  let p_i = read_vect_v m.vecteur in 
   let taille = m.taille_max in 
   let rec test_taille = fun t -> 
     if t<m.taille_min then 0
     else 
-      if ((y + t*p_x >= 0) && (y + t*p_x <= (!nb_c-1))) && ((x + t*p_y >= 0) && (x + t*p_y <= (!nb_l-1))) then t 
+      if ((j + t*p_j >= 0) && (j + t*p_j <= (!nb_c-1))) && ((i + t*p_i >= 0) && (i + t*p_i <= (!nb_l-1))) then t 
       else test_taille (t-1) 
   in test_taille taille 
 
@@ -98,7 +101,7 @@ let possible_move = fun joueur ->
   let rec view_list = fun lst return -> 
     match lst with 
     [] -> return 
-    | h::t -> let new_taille = fct2 h (joueur.pos_x) (joueur.pos_y) in 
+    | h::t -> let new_taille = new_taille_move h (joueur.pos_i) (joueur.pos_j) in 
             if new_taille != 0 then let new_move = {vecteur = h.vecteur; taille_min = h.taille_min; taille_max = new_taille} in view_list t (new_move::return)
             else view_list t return 
   in view_list (joueur.genre.move) [] 
@@ -108,14 +111,14 @@ let rec concatenate = fun lst1 lst2 ->
   [] -> lst2 
   | h::t -> h :: concatenate t lst2 
 
-let move_to_pos = fun m pos_x pos_y ->   
-  let rec constr = fun i -> 
-    if i < m.taille_min then []
+let move_to_pos = fun m pos_i pos_j ->   
+  let rec constr = fun k -> 
+    if k < m.taille_min then []
     else 
       let h = read_vect_h m.vecteur in 
       let v = read_vect_v m.vecteur in
-      let new_pos = {x = pos_x + i*v; y = pos_y + i*h} in  
-      new_pos :: constr (i-1)
+      let new_pos = {i = pos_i + k*v; j = pos_j + k*h} in  
+      new_pos :: constr (k-1)
   in constr m.taille_max  
 
 let possible_pos = fun joueur -> 
@@ -123,26 +126,26 @@ let possible_pos = fun joueur ->
   let rec build_list = fun lst_m return -> 
     match lst_m with 
     [] -> return 
-    | h::t -> let lst_pos = move_to_pos h joueur.pos_x joueur.pos_y in build_list t (concatenate lst_pos return)
+    | h::t -> let lst_pos = move_to_pos h joueur.pos_i joueur.pos_j in build_list t (concatenate lst_pos return)
   in build_list lst_move []
 
 let move_player = fun joueur pos -> 
-  joueur.pos_x <- pos.x ;
-  joueur.pos_y <- pos.y 
+  joueur.pos_i <- pos.i ;
+  joueur.pos_j <- pos.j 
 
 let verif_pos = fun lst_pos pos -> 
   List.mem pos lst_pos
 
 let number_pos = fun lst_pos pos -> 
-  let rec match_lst = fun lst i -> 
+  let rec match_lst = fun lst k -> 
     match lst with
     [] -> -1 
-    | h::t -> if h = pos then i else match_lst t (i+1)
+    | h::t -> if h = pos then k else match_lst t (k+1)
   in match_lst lst_pos 1 
 
 let is_win = fun cat mouse -> 
   let lst_pos_cat = possible_pos cat in 
-  let pos_mouse = {x = mouse.pos_x; y = mouse.pos_y} in 
+  let pos_mouse = {i = mouse.pos_i; j = mouse.pos_j} in 
   verif_pos lst_pos_cat pos_mouse 
 
 let rec display_vect = fun v ->
@@ -176,15 +179,15 @@ let display_lst_move = fun lst_m ->
   print_newline () 
 
 let display_pos = fun pos -> 
-  Printf.printf "(%d, %d)\n" pos.x pos.y   
+  Printf.printf "(%d, %d)\n" pos.i pos.j   
 
 let display_v3 = fun j1 j2 -> (*voir comment changer la couleur du texte en affichage et passer en parametre une liste de pos pour les mettre en rouge*)
-  for i=0 to !nb_c-1 do 
-    for j=0 to !nb_l-1 do 
-      if i = j1.pos_x && j = j1.pos_y then 
+  for i=0 to !nb_l-1 do 
+    for j=0 to !nb_c-1 do 
+      if i = j1.pos_i && j = j1.pos_j then 
         if j1.role = 1 then Printf.printf "s "
         else Printf.printf "c "
-      else if i = j2.pos_x && j = j2.pos_y then
+      else if i = j2.pos_i && j = j2.pos_j then
         if j2.role = 1 then Printf.printf "s "
         else Printf.printf "c "
       else Printf.printf "¤ "
@@ -192,18 +195,18 @@ let display_v3 = fun j1 j2 -> (*voir comment changer la couleur du texte en affi
     Printf.printf "   %d\n" i;
   done;
   Printf.printf "\n";
-  for j=0 to !nb_l-1 do 
+  for j=0 to !nb_c-1 do 
     Printf.printf "%d " j;
   done;
   print_newline ()  
 
 let display_lst_pos_finale = fun lst_pos ->
-  let rec display_list = fun lst i -> 
+  let rec display_list = fun lst k -> 
     match lst with 
     [] -> Printf.printf "." 
-    | h::t -> let () = Printf.printf "%d ->" i in 
+    | h::t -> let () = Printf.printf "%d ->" k in 
       let () = display_pos h in 
-      display_list t (i+1)
+      display_list t (k+1)
   in let () = display_list lst_pos 1 in 
   print_newline ()
 
@@ -215,17 +218,17 @@ let elt_of_lst = fun i lst ->
   in match_lst lst 1
 
 let display_v4 = fun j1 j2 lst_pos -> 
-  for i=0 to !nb_c-1 do 
-    for j=0 to !nb_l-1 do 
-      let pos = {x = i; y = j} in 
+  for i=0 to !nb_l-1 do 
+    for j=0 to !nb_c-1 do 
+      let pos = {i = i; j = j} in 
       if verif_pos lst_pos pos then 
         let k = number_pos lst_pos pos in 
         if k>9 then Printf.printf "%d " k
         else Printf.printf "%d  " k 
-      else if i = j1.pos_x && j = j1.pos_y then 
+      else if i = j1.pos_i && j = j1.pos_j then 
         if j1.role = 1 then Printf.printf "s  "
         else Printf.printf "c  "
-      else if i = j2.pos_x && j = j2.pos_y then
+      else if i = j2.pos_i && j = j2.pos_j then
         if j2.role = 1 then Printf.printf "s  "
         else Printf.printf "c  "
       else Printf.printf "¤  "
@@ -233,7 +236,7 @@ let display_v4 = fun j1 j2 lst_pos ->
     Printf.printf "   %d\n" i;
   done;
   Printf.printf "\n";
-  for j=0 to !nb_l-1 do 
+  for j=0 to !nb_c-1 do 
     if j>9 then Printf.printf "%d " j 
     else Printf.printf "%d  " j;
   done;
@@ -259,9 +262,9 @@ let init_lst_move = fun () ->
         let () = print_endline "Voulez vous entrer un autre mouvement ? Tapez 1 pour continuer 0 pour arreter" in 
         let y = Scanf.scanf "%d\n" (fun x -> x) in 
         init_lst_move_rec y (new_move::lst)
-  in init_lst_move_rec 1 []
-  
-let init_player = fun () -> 
+  in init_lst_move_rec 1 []  
+
+let init_full_player = fun () -> 
   let () = print_endline "Veuillez entrer le role de votre joueur : Souris : 1 Chat : 2" in 
   let r = Scanf.scanf "%d\n" (fun x->x) in 
   let () = print_endline "Veuillez entrer la liste de mouvement pour votre joueur :" in 
@@ -271,18 +274,39 @@ let init_player = fun () ->
   let i = 0 in 
   let j = 0 in 
   let p = {name = n; move = lst_move} in 
-  {role = r; genre = p; pos_x = i; pos_y = j} 
+  {role = r; genre = p; pos_i = i; pos_j = j} 
+
+let init_player = fun r -> 
+  let () = print_endline "Veuillez entrer la liste de mouvement pour votre joueur :" in 
+  let lst_move = init_lst_move () in 
+  let () = print_endline "Veuillez entree le nom de la piece qui represente votre joueur" in 
+  let n = Scanf.scanf "%s\n" (fun x->x) in 
+  let i = 0 in 
+  let j = 0 in 
+  let p = {name = n; move = lst_move} in 
+  {role = r; genre = p; pos_i = i; pos_j = j} 
   
-let rec choose_player = fun ()-> 
+let rec choose_full_player = fun ()-> 
   let () = print_endline "Veuillez choisir votre joueur : \nPour personalisez un joueur taper 1 pour choisir un joueur deja existant taper 2" in 
   let c = Scanf.scanf "%d\n" (fun x->x) in 
-  if (c < 1 || c > 2) then let () = print_endline "Mauvais choix, recommencer" in choose_player () 
+  if (c < 1 || c > 2) then let () = print_endline "Mauvais choix, recommencer" in choose_full_player () 
   else 
-    if c = 1 then init_player () 
+    if c = 1 then init_full_player () 
     else 
       let () = print_endline "Vous avez le choix : \nRoi -> 1 \nReine -> 2" in 
       let p = Scanf.scanf "%d\n" (fun x->x) in 
-      if p = 1 then p1 else p2 
+      if p = 1 then p1 else p2
+      
+let rec choose_player = fun r -> 
+  let () = if r =1 then print_endline "Veuillez choisir le joueur qui représentera la souris : \nPour personalisez un joueur taper 1 pour choisir un joueur deja existant taper 2"  else print_endline "Veuillez choisir le joueur qui représentera le chat : \nPour personalisez un joueur taper 1 pour choisir un joueur deja existant taper 2" in 
+  let c = Scanf.scanf "%d\n" (fun x->x) in 
+  if (c < 1 || c > 2) then let () = print_endline "Mauvais choix, recommencer" in choose_player r 
+  else 
+    if c = 1 then init_player r 
+    else 
+      let () = print_endline "Vous avez le choix : \nRoi -> 1 \nReine -> 2" in 
+      let p = Scanf.scanf "%d\n" (fun x->x) in 
+      if p = 1 then {role = r; genre = roi; pos_i = 0; pos_j = 0} else {role = r; genre = reine; pos_i = 0; pos_j = 0}
   
 
 let play = fun mouse cat -> (*faudra voir qui joue en premier chat ou souris ?*) (*Faudra rajouter un compteur pour savoir quand la souris gagne*)
@@ -295,7 +319,7 @@ let play = fun mouse cat -> (*faudra voir qui joue en premier chat ou souris ?*)
     let actuel_player = if !p=0 then mouse else cat in 
     let pos_lst = possible_pos actuel_player in
     let max_pos = List.length pos_lst in  
-    let () = display_v3 mouse cat in  (*ICI VOUS POUVEZ choisir votre display entre le v3 et le v4 pour le v4 faut aussi passer la pos_lst en argument tester les 2 et dites moi celui que vous préférer ;)*)
+    let () = display_v4 mouse cat pos_lst in  (*ICI VOUS POUVEZ choisir votre display entre le v3 et le v4 pour le v4 faut aussi passer la pos_lst en argument tester les 2 et dites moi celui que vous préférer ;)*)
     let () = display_lst_pos_finale pos_lst in 
     let () = if !p =0 then print_endline "Souris a toi de jouer" else print_endline "Chat a toi de jouer" in 
     let new_pos = Scanf.scanf "%d\n" (fun x->x) in 
@@ -316,17 +340,35 @@ let play = fun mouse cat -> (*faudra voir qui joue en premier chat ou souris ?*)
 
 
 
-(*main*)
+(*main*) 
 let () =
-  nb_c := 8;
-  nb_l := 8;
-  play p1 p2 
+  let () = print_endline "Veuillez rentrer la taille de la grille :\nRentrer le nombre de ligne (longueur verticale) :" in 
+  let l = Scanf.scanf "%d\n" (fun x->x) in 
+  let () = print_endline "Rentrer le nombre de colonne (longueur horizontale) :" in 
+  let c = Scanf.scanf "%d\n" (fun x->x) in 
+  let () = nb_c := c in 
+  let () = nb_l := l in 
+  let mouse = choose_player 1 in 
+  let cat = choose_player 2 in 
+  let () = print_endline "Veuillez maintenant choisir les positions de departs: \nRentrer la position de la souris :\ni :" in 
+  let i_mouse = Scanf.scanf "%d\n" (fun x->x) in (*regarder plus tard ici aussi si on fait une verif de pos*) 
+  let () = print_endline "j : " in 
+  let j_mouse = Scanf.scanf "%d\n" (fun x->x) in
+  let () = print_endline "Rentrer la position du chat : \ni :" in 
+  let i_cat = Scanf.scanf "%d\n" (fun x->x) in (*regarder plus tard ici aussi si on fait une verif de pos*) 
+  let () = print_endline "j : " in 
+  let j_cat = Scanf.scanf "%d\n" (fun x->x) in
+  let start_pos_mouse = {i = i_mouse; j = j_mouse} in 
+  let start_pos_cat = {i = i_cat; j = j_cat} in 
+  let () = move_player mouse start_pos_mouse in
+  let () = move_player cat start_pos_cat in 
+  play mouse cat 
 
 
 (*Les petits ajouts a faire :
-   -> pouvoir rentrer la position de départ de chaque joueur
-   -> pouvoir créer des mouvement et des joueurs personalises V -> reste plus qu'a l'integrer dans play 
-   -> pouvoir rentrer la taille de la grille
-   -> faut voir aussi si le chat est un obstacle au deplacement -> pour l'instant on peut jouer sur lui 
-   -> Faudra demander aussi si on vérifie toutes les entrées clavier -> exemple : pour entrer la taille de la grille vérifier si le numéro entrer est négatif ou si c'est une lettre ect 
+   -> pouvoir rentrer la position de départ de chaque joueur V 
+   -> pouvoir créer des mouvement et des joueurs personalises V -> reste plus qu'a l'integrer dans play V 
+   -> pouvoir rentrer la taille de la grille V 
+   -> faut voir aussi si le chat est un obstacle au deplacement -> pour l'instant on peut jouer sur lui
+   -> Faudra demander aussi si on vérifie toutes les entrées clavier -> exemple : pour entrer la taille de la grille vérifier si le numéro entrer est négatif ou si c'est une lettre ect
    (facultatif)-> changer l'affichage pour mettre en rouge les positions jouables et avoir le numéro de la position directement sur la grille*)
