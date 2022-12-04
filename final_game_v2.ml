@@ -309,7 +309,7 @@ let rec choose_player = fun r ->
       if p = 1 then {role = r; genre = roi; pos_i = 0; pos_j = 0} else {role = r; genre = reine; pos_i = 0; pos_j = 0}
   
 
-let play = fun mouse cat -> (*faudra voir qui joue en premier chat ou souris ?*) (*Faudra rajouter un compteur pour savoir quand la souris gagne*)
+let play = fun mouse cat -> (*faudra voir qui joue en premier chat ou souris ?*) (*Faudra rajouter un compteur pour savoir quand la souris gagne*)(*pour prendre en compte l'ia juste rajouter un parametre a la fonction qui sera 0, 1, 2 ou 3 pour savoir dans quel mode on joue*)
   let () = print_endline "Veuillez entrer le numéro de la position pour jouer ou 0 pour quitter" in 
   let gg = ref true in 
   let quit = ref true in 
@@ -322,7 +322,7 @@ let play = fun mouse cat -> (*faudra voir qui joue en premier chat ou souris ?*)
     let () = display_v4 mouse cat pos_lst in  (*ICI VOUS POUVEZ choisir votre display entre le v3 et le v4 pour le v4 faut aussi passer la pos_lst en argument tester les 2 et dites moi celui que vous préférer ;)*)
     let () = display_lst_pos_finale pos_lst in 
     let () = if !p =0 then print_endline "Souris a toi de jouer" else print_endline "Chat a toi de jouer" in 
-    let new_pos = Scanf.scanf "%d\n" (fun x->x) in 
+    let new_pos = Scanf.scanf "%d\n" (fun x->x) in  (*C'est ici qu'il faudra l'appel a une fonction pour l'ia*)
     if (new_pos < 1 || new_pos > max_pos) then 
       if new_pos = 0 then quit:=false 
       else let () = print_endline "Position impossible veuillez rejouer" in p := (!p+1) mod 2 
