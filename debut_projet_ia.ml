@@ -173,6 +173,7 @@ let () =
     start_pos 0 0 4 4 bd; 
     display_board2 bd;
 
+(*test*)
 
 
 
