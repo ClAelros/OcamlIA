@@ -72,13 +72,14 @@ let p2 = {role = 2; genre = roi; pos_i = 4; pos_j = 4}
 let impossible_pos = {i = -1; j = -1}
 
 
-(*Definition des fonctions pour creer et lire des vecteurs*)
+(*Cette fonction prend en entrée deux nombres x et y et retourne un vecteur.*)
 let make_vect = fun x y ->
   if x > 0 && y >0 then Sum(Horizontal x, Vertical y)
   else if x < 0 && y >0 then Sum(Opp (Horizontal (-x)), Vertical y)
   else if x > 0 && y <0 then Sum(Horizontal x, Opp (Vertical (-y)))
   else Sum(Opp (Horizontal (-x)), Opp (Vertical (-y))) 
 
+(*Cette fonction prend en entrée un vecteur "v" et renvoie sa valeur horizontale.*)
 let rec read_vect_h = fun v -> 
   match v with
   Horizontal x -> x
@@ -86,6 +87,7 @@ let rec read_vect_h = fun v ->
   | Sum (x, y) -> (read_vect_h x)+(read_vect_h y)
   | Opp v -> (-1)*(read_vect_h v)
 
+(*Cette fonction prend en entrée un vecteur "v" et renvoie sa valeur verticale.*)
 let rec read_vect_v = fun v -> 
   match v with
   Horizontal x -> 0
@@ -106,6 +108,7 @@ let new_taille_move = fun m i j ->
       else test_taille (t-1) 
   in test_taille taille 
 
+(*Cette fonction renvoie la liste des mouvements possibles d'un joueur en fonction de sa position actuelle.*)
 let possible_move = fun joueur -> 
   let rec view_list = fun lst return -> 
     match lst with 
@@ -122,6 +125,8 @@ let rec concatenate = fun lst1 lst2 ->
   [] -> lst2 
   | h::t -> h :: concatenate t lst2 
 
+(*Cette fonction prend en entrée un mouvement "m", une position initiale en abscisse "pos_i" et une position initiale en ordonnée "pos_j".
+   Elle renvoie la liste des positions successives que prendra un objet en suivant le mouvement "m"*)  
 let move_to_pos = fun m pos_i pos_j ->   
   let rec constr = fun k -> 
     if k < m.taille_min then []
@@ -132,6 +137,7 @@ let move_to_pos = fun m pos_i pos_j ->
       new_pos :: constr (k-1)
   in constr m.taille_max  
 
+(*Cette fonction renvoie la liste des positions possibles pour un joueur donné.*)
 let possible_pos = fun joueur -> 
   let lst_move = possible_move joueur in 
   let rec build_list = fun lst_m return -> 
@@ -146,9 +152,11 @@ let move_player = fun joueur pos ->
   joueur.pos_i <- pos.i ;
   joueur.pos_j <- pos.j 
 
+(*Cette fonction vérifie si une position donnée est présente dans une liste de positions.*)
 let verif_pos = fun lst_pos pos -> 
   List.mem pos lst_pos
 
+(*Cette fonction renvoie la position de l'élément "pos" dans la liste "lst_pos", ou -1 s'il n'y est pas.*)
 let number_pos = fun lst_pos pos -> 
   let rec match_lst = fun lst k -> 
     match lst with
@@ -156,11 +164,13 @@ let number_pos = fun lst_pos pos ->
     | h::t -> if h = pos then k else match_lst t (k+1)
   in match_lst lst_pos 1 
 
+(*Cette fonction vérifie si le chat a gagné en comparant la liste des positions possibles du chat et la position actuelle de la souris.*)
 let is_win = fun cat mouse -> 
   let lst_pos_cat = possible_pos cat in 
   let pos_mouse = {i = mouse.pos_i; j = mouse.pos_j} in 
   verif_pos lst_pos_cat pos_mouse 
 
+(*Cette fonction retourne l'élément à la position i dans la liste lst.*)
 let elt_of_lst = fun i lst -> 
   let rec match_lst = fun lst x ->
     match lst with 
@@ -209,7 +219,8 @@ let display_v4 = fun j1 j2 lst_pos ->
   print_newline ()  
   
 
-(*Definition des fonctions qui permettent de creer son personnage*)
+(*Cette fonction initialise une liste de mouvements en demandant à l'utilisateur de saisir les informations de chaque mouvement.
+   Si l'utilisateur décide d'arrêter, la fonction renvoie la liste de mouvements créée.*)
 let init_lst_move = fun () -> 
   let rec init_lst_move_rec = fun x lst -> 
     if x = 0 then lst 
@@ -232,6 +243,8 @@ let init_lst_move = fun () ->
         init_lst_move_rec y (new_move::lst)
   in init_lst_move_rec 1 []  
 
+(*Cette fonction initialise un joueur en demandant à l'utilisateur de rentrer une liste de mouvements et un nom de pièce.
+   Elle crée ensuite un objet "joueur" avec ces informations, ainsi que des coordonnées initiales de position (0,0) et un rôle prédéfini (paramètre de la fonction).*)
 let init_player = fun r -> 
   let () = print_endline "Veuillez entrer la liste de mouvement pour votre joueur :" in 
   let lst_move = init_lst_move () in 
@@ -242,6 +255,8 @@ let init_player = fun r ->
   let p = {name = n; move = lst_move} in 
   {role = r; genre = p; pos_i = i; pos_j = j} 
 
+(*Cette fonction permet de choisir le joueur qui représentera soit la souris ou le chat dans le jeu et de personaliser ou choisir un joueur déjà existant.
+   Si le choix est mauvais, la fonction recommence.*)
 let rec choose_player = fun r -> 
   let () = if r =1 then print_endline "Veuillez choisir le joueur qui représentera la souris : \nPour personalisez un joueur taper 1 pour choisir un joueur deja existant taper 2"  else print_endline "Veuillez choisir le joueur qui représentera le chat : \nPour personalisez un joueur taper 1 pour choisir un joueur deja existant taper 2" in 
   let c = Scanf.scanf "%d\n" (fun x->x) in 
@@ -334,7 +349,10 @@ let rec negamax t alpha beta =
     in loop lst alpha  *)
 
 
-(*Fonction de jeu*)
+(*Cette fonction permet de jouer au jeu en demandant à l'utilisateur de choisir une position sur la grille où se déplacer.
+   Si la position choisie n'est pas valide, le joueur doit rejouer.
+   Si l'utilisateur entre 0, la partie s'arrête.
+   Sinon, le joueur qui a joué (soit le chat, soit la souris) se déplace et si l'un d'eux gagne, la boucle de jeu se termine.*)
 let play = fun mouse cat -> 
   let () = print_endline "Veuillez entrer le numéro de la position pour jouer ou 0 pour quitter" in 
   let gg = ref true in 
@@ -364,7 +382,8 @@ let play = fun mouse cat ->
   done
 
 
-(*main*)
+(*Cette fonction demande à l'utilisateur de rentrer la taille de la grille et les positions de départ des joueurs (souris et chat).
+   Elle déplace les joueurs vers ces positions et lance la partie.*)
 let () =
   let () = print_endline "Veuillez rentrer la taille de la grille :\nRentrer le nombre de ligne (longueur verticale) :" in 
   let l = Scanf.scanf "%d\n" (fun x->x) in 
