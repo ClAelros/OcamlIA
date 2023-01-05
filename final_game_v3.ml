@@ -70,6 +70,7 @@ let p1 = {role = 1; genre = reine; pos_i = 0; pos_j = 0}
 let p2 = {role = 2; genre = roi; pos_i = 4; pos_j = 4} 
 
 let impossible_pos = {i = -1; j = -1}
+let cat_position = ref impossible_pos (*Ici besoin d'une var globale pour la position du chat car ayant fait la fct possible_pos au debut sans me rendre compte que la souris pouvait jouer sur la chat il me faut la position du chat pour remedier a ce probleme mais je ne l'ai pas dans la focntion build tree dans laquelle j'utilise possible pos et je ne sais pas quel joueur est le chat et quel joueur est la souris*)
 
 
 (*Cette fonction prend en entrée deux nombres x et y et retourne un vecteur.*)
@@ -138,13 +139,23 @@ let move_to_pos = fun m pos_i pos_j ->
   in constr m.taille_max  
 
 (*Cette fonction renvoie la liste des positions possibles pour un joueur donné.*)
+let cat_on_the_road = fun lst_pos -> 
+  if List.mem (!cat_position) lst_pos then 
+    let rec build_new_lst = fun lst return -> 
+      match lst with 
+      [] -> return  
+      | h::t -> if h = (!cat_position) then build_new_lst t return else build_new_lst t (h::return)
+    in build_new_lst lst_pos [] 
+  else lst_pos
+
 let possible_pos = fun joueur -> 
   let lst_move = possible_move joueur in 
   let rec build_list = fun lst_m return -> 
     match lst_m with 
     [] -> return 
     | h::t -> let lst_pos = move_to_pos h joueur.pos_i joueur.pos_j in build_list t (concatenate lst_pos return)
-  in build_list lst_move []
+  in build_list lst_move [] in 
+  cat_on_the_road lst_pos 
 
 
 (*Definition des fonctions de verification des bonnes conditions du jeu*)
@@ -301,21 +312,47 @@ let build_tree_v2 = fun player_max player_min profondeur ->
         List.map(fun x -> Nodmax((build_tree_rec_v2 pos_autre x (profondeur-1)), pos_autre, x)) lst_pos 
   in  Nodmax((build_tree_rec_v2 pos_max pos_min profondeur), pos_max, pos_min)
 
+
+(*Definition des fonctions pour analyser l'arbre*)
+let match_tree_nodmax = fun t -> 
+  match t with 
+  Nodmax (lst,_,_) -> lst 
+  | _ -> []
+
+let match_tree_pos_max = fun t ->
+  match t with
+  Nodmin (_, pos_max, _) -> pos_max 
+  | _ -> impossible_pos 
+
+let elt_of_lst_tree = fun i lst -> 
+  let rec match_lst = fun lst x ->
+    match lst with 
+    [] -> Nodmax([], impossible_pos, impossible_pos)
+    | h::t -> if x = i then h else match_lst t (x+1)
+  in match_lst lst 1
+
+let max_lst = fun lst_max -> 
+  let rec max = fun lst x -> 
+    match lst with 
+    [] -> x 
+    | h::t -> if h>x then max t h else max t x 
+  in max lst_max 0 
+
 (*Definition des fonctions d'heuristique (*a completer*)*)
 
-(*Definition des focntions de traitement de l'arbre (Pour l'instant en commentaire je vais les modifs après)*)
-(* let count1=ref 0
+(*Definition des focntions de traitement de l'arbre*)
+let count1=ref 0
 let rec minimax t =
   match t with 
-  Leaf x -> let ()  = count1 := !count1 +1 in x
-  | Nodmin lst -> List.fold_left (fun x y -> let z = minimax y in if x<z then x else z) (max_int) (lst) 
-  | Nodmax lst -> List.fold_left (fun x y -> max x (minimax y)) (-max_int) (lst)  
+  Leaves x -> let ()  = count1 := !count1 +1 in x
+  | Nodmin (lst, _, _) -> List.fold_left (fun x y -> let z = minimax y in if x<z then x else z) (max_int) (lst) 
+  | Nodmax (lst, _, _) -> List.fold_left (fun x y -> max x (minimax y)) (-max_int) (lst)  
 
 let count2=ref 0
 let rec alphabeta t alpha beta =
   match t with 
-  Leaf s -> let () = count2 := !count2 +1 in s 
-  | Nodmin lst -> 
+  Leaves s -> let () = count2 := !count2 +1 in s 
+  | Nodmin (lst, _, _) -> 
     let rec loop = fun a s lst_n -> 
       match lst_n with 
       [] -> s 
@@ -324,7 +361,7 @@ let rec alphabeta t alpha beta =
         if temp <= a then temp 
         else loop a temp q 
     in loop alpha beta lst 
-  | Nodmax lst -> 
+  | Nodmax (lst, _, _) -> 
     let rec loop = fun s b lst_n -> 
       match lst_n with 
       [] -> s 
@@ -337,8 +374,8 @@ let rec alphabeta t alpha beta =
 let count3=ref 0
 let rec negamax t alpha beta =
   match t with 
-  Leaf s -> let () = count3 := !count3 +1 in s 
-  | Nodmin lst | Nodmax lst ->
+  Leaves s -> let () = count3 := !count3 +1 in s 
+  | Nodmin (lst, _, _) | Nodmax (lst, _, _) ->
     let rec loop = fun lst_n s -> 
       match lst_n with 
       [] -> s 
@@ -346,40 +383,74 @@ let rec negamax t alpha beta =
         let temp = max s (-(negamax h (-beta) (-s))) in 
         if temp >= beta then temp
         else loop q temp 
-    in loop lst alpha  *)
+    in loop lst alpha 
+
+let application_of_alpha_beta = fun t -> 
+  alphabeta t (-max_int) max_int
+
+let application_of_negamax = fun t -> 
+  negamax t (-max_int) max_int
+
 
 
 (*Cette fonction permet de jouer au jeu en demandant à l'utilisateur de choisir une position sur la grille où se déplacer.
    Si la position choisie n'est pas valide, le joueur doit rejouer.
    Si l'utilisateur entre 0, la partie s'arrête.
    Sinon, le joueur qui a joué (soit le chat, soit la souris) se déplace et si l'un d'eux gagne, la boucle de jeu se termine.*)
-let play = fun mouse cat -> 
+let play = fun mouse cat ia prof -> 
   let () = print_endline "Veuillez entrer le numéro de la position pour jouer ou 0 pour quitter" in 
   let gg = ref true in 
   let quit = ref true in 
   let p = ref 1 in
+  let round = ref 0 in 
   while (!gg && !quit) do 
+    if !round = 10 then gg := false else 
+    let () = cat_position := {i = cat.pos_i; j = cat.pos_j} in 
     let () = p := (!p+1) mod 2 in
     let actuel_player = if !p=0 then mouse else cat in 
     let pos_lst = possible_pos actuel_player in
-    let max_pos = List.length pos_lst in  
+    let max_pos = List.length pos_lst in 
+    let () = Printf.printf "Round n°%d\n" (!round) in  
     let () = display_v4 mouse cat pos_lst in  
     let () = display_lst_pos_finale pos_lst in 
     let () = if !p =0 then print_endline "Souris a toi de jouer" else print_endline "Chat a toi de jouer" in 
-    let new_pos = Scanf.scanf "%d\n" (fun x->x) in (*C'est ici qu'il faudra l'appel a une fonction pour l'ia*)
-    if (new_pos < 1 || new_pos > max_pos) then 
-      if new_pos = 0 then quit:=false 
-      else let () = print_endline "Position impossible veuillez rejouer" in p := (!p+1) mod 2 
-    else 
-      let play_pos = elt_of_lst new_pos pos_lst in 
-      if play_pos = impossible_pos then print_endline "Mauvaise touche veuillez rejouer" 
-      else 
-        let () = move_player actuel_player play_pos in 
+    if (!p) = ia || ia = 2 then
+      let player_max = actuel_player in 
+      let player_min = if !p = 0 then cat else mouse in 
+      let tree = build_tree_v2 player_max player_min prof in 
+      let lst_tree = match_tree_nodmax tree in 
+      let score_tree = List.map (fun t -> minimax t) lst_tree in
+      let m = max_lst score_tree in 
+      let k = number_pos score_tree m in 
+      let node = elt_of_lst_tree k lst_tree in 
+      let new_pos = match_tree_pos_max node in 
+      if new_pos = impossible_pos then 
+        let () = print_endline "Erreur de l'ia" in 
+        quit := false 
+      else
+        let () = move_player actuel_player new_pos in 
+        let () = round := (!round+1) in 
         if actuel_player.role = 1 then 
-          if is_win cat mouse then gg:=false 
+          if is_win cat mouse then gg := false 
+          else ()
+        else()  
+    else  
+      let new_pos = Scanf.scanf "%d\n" (fun x->x) in (*C'est ici qu'il faudra l'appel a une fonction pour l'ia*)
+      if (new_pos < 1 || new_pos > max_pos) then 
+        if new_pos = 0 then quit:=false 
+        else let () = print_endline "Position impossible veuillez rejouer" in p := (!p+1) mod 2 
+      else 
+        let play_pos = elt_of_lst new_pos pos_lst in 
+        if play_pos = impossible_pos then print_endline "Mauvaise touche veuillez rejouer" 
+        else 
+          let () = move_player actuel_player play_pos in 
+          let () = round := (!round+1) in 
+          if actuel_player.role = 1 then 
+            if is_win cat mouse then gg:=false 
+            else () 
           else () 
-        else () 
   done
+  
 
 
 (*Cette fonction demande à l'utilisateur de rentrer la taille de la grille et les positions de départ des joueurs (souris et chat).
@@ -405,7 +476,15 @@ let () =
   let start_pos_cat = {i = i_cat; j = j_cat} in 
   let () = move_player mouse start_pos_mouse in
   let () = move_player cat start_pos_cat in 
-  play mouse cat 
+  let () = print_endline "Quelle configuration souhaitez vous ? \nMouse ia vs Cat player -> 0 \nMouse player vs Cat ia -> 1 \nMouse ia vs Cat ia -> 2 \nMouse player vs Cat player -> 3" in 
+  let ia = Scanf.scanf "%d\n" (fun x->x) in 
+  if ia = 3 then 
+    play mouse cat ia 0 
+  else 
+    let () = print_endline "Veuillez choisir la profondeur de l'arbre creer par l'IA" in 
+    let prof = Scanf.scanf "%d\n" (fun x->x) in
+    play mouse cat ia prof 
+
 
   
   
