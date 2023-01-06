@@ -154,7 +154,7 @@ let possible_pos = fun joueur ->
     match lst_m with 
     [] -> return 
     | h::t -> let lst_pos = move_to_pos h joueur.pos_i joueur.pos_j in build_list t (concatenate lst_pos return)
-  in build_list lst_move [] in 
+  in let lst_pos = build_list lst_move [] in 
   cat_on_the_road lst_pos 
 
 
