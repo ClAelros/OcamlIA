@@ -290,6 +290,9 @@ let abs_val value =
   else
     value 
 
+let calcul_score = fun pos_cat pos_mouse ->
+    pos_cat.i + pos_mouse.i + pos_cat.j + pos_mouse.j + 20
+
 let calcul_score1 = fun pos_cat pos_mouse ->
   (pos_cat.i - pos_mouse.i)*(pos_cat.i - pos_mouse.i) + (pos_cat.j - pos_mouse.j)*(pos_cat.j - pos_mouse.j)
 
@@ -304,9 +307,9 @@ let grille_score = fun pos_j1 pos_j2 p_turn p ->
       calcul_score1 pos_j1 pos_j2
   else
     if !p = 0 then
-      calcul_score1 pos_j1 pos_j2
+      500 - calcul_score1 pos_j1 pos_j2
     else
-      calcul_score1 pos_j1 pos_j2
+      500 - calcul_score1 pos_j1 pos_j2
 
 
 let build_tree_v2 = fun player_max player_min profondeur player_turn -> 
