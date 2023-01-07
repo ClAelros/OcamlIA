@@ -309,6 +309,14 @@ let grille_score = fun pos_j2 pos_j1 p_turn p ->
     else
       500 - calcul_score1 pos_j2 pos_j1
 
+(* A utiliser pour calculer les positions quand plusieurs ressortent avec la même valeur dans le minimax
+   L'appliquer sur la liste des pos qui ont le score max (à créer) puis prendre le max_lst de play_score appliquée à tous les elts de la liste*)
+let play_score = fun pos_max pos_min p_turn ->
+  if !p_turn = 0 then
+      500 + calcul_score1 pos_min pos_max
+  else
+      500 - calcul_score1 pos_max pos_min
+
 
 let build_tree_v2 = fun player_max player_min profondeur player_turn -> 
   let pos_max = {i = player_max.pos_i; j = player_max.pos_j} in
@@ -444,7 +452,8 @@ let play = fun mouse cat ia prof ->
       let lst_tree = match_tree_nodmax tree in 
       let score_tree = List.map (fun t -> minimax t) lst_tree in
       let m = max_lst score_tree in 
-      let k = number_pos score_tree m in 
+      (* A modifier pour prendre en compte quand plusieurs valeurs max*)
+      let k = number_pos score_tree m in
       let node = elt_of_lst_tree k lst_tree in 
       let new_pos = match_tree_pos_max node in 
       if new_pos = impossible_pos then 
