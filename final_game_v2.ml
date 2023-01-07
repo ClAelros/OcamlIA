@@ -95,7 +95,7 @@ let new_taille_move = fun m i j ->
     else 
       if ((j + t*p_j >= 0) && (j + t*p_j <= (!nb_c-1))) && ((i + t*p_i >= 0) && (i + t*p_i <= (!nb_l-1))) then t 
       else test_taille (t-1) 
-  in test_taille taille 
+  in test_taille taille
 
 let possible_move = fun joueur -> 
   let rec view_list = fun lst return -> 
@@ -167,7 +167,7 @@ let display_move = fun m ->
   let () = Printf.printf "; taille_min : %d; taille_max : %d}" m.taille_min m.taille_max in 
   print_newline () 
 
-let display_lst_move = fun lst_m -> 
+(* let display_lst_move = fun lst_m -> 
   let () = Printf.printf "[" in 
   let rec display_list = fun lst -> 
     match lst with
@@ -176,12 +176,12 @@ let display_lst_move = fun lst_m ->
       let () = Printf.printf "; " in 
       display_list t 
   in let () = display_list lst_m in 
-  print_newline () 
+  print_newline () *)
 
 let display_pos = fun pos -> 
   Printf.printf "(%d, %d)\n" pos.i pos.j   
 
-let display_v3 = fun j1 j2 -> (*voir comment changer la couleur du texte en affichage et passer en parametre une liste de pos pour les mettre en rouge*)
+(* let display_v3 = fun j1 j2 -> (*voir comment changer la couleur du texte en affichage et passer en parametre une liste de pos pour les mettre en rouge*)
   for i=0 to !nb_l-1 do 
     for j=0 to !nb_c-1 do 
       if i = j1.pos_i && j = j1.pos_j then 
@@ -198,7 +198,7 @@ let display_v3 = fun j1 j2 -> (*voir comment changer la couleur du texte en affi
   for j=0 to !nb_c-1 do 
     Printf.printf "%d " j;
   done;
-  print_newline ()  
+  print_newline ()*)
 
 let display_lst_pos_finale = fun lst_pos ->
   let rec display_list = fun lst k -> 
@@ -259,17 +259,17 @@ let init_lst_move = fun () ->
         init_lst_move_rec 1 lst 
       else
         let new_move = {vecteur = make_vect h v; taille_min = t_min; taille_max = t_max} in
-        let () = print_endline "Voulez vous entrer un autre mouvement ? Tapez 1 pour continuer 0 pour arreter" in 
+        let () = print_endline "Voulez-vous entrer un autre mouvement ? \n1 pour continuer \n0 pour arreter" in 
         let y = Scanf.scanf "%d\n" (fun x -> x) in 
         init_lst_move_rec y (new_move::lst)
   in init_lst_move_rec 1 []  
 
 let init_full_player = fun () -> 
-  let () = print_endline "Veuillez entrer le role de votre joueur : Souris : 1 Chat : 2" in 
+  let () = print_endline "Veuillez entrer le role de votre joueur : \nSouris -> 1 \nChat -> 2" in 
   let r = Scanf.scanf "%d\n" (fun x->x) in 
   let () = print_endline "Veuillez entrer la liste de mouvement pour votre joueur :" in 
   let lst_move = init_lst_move () in 
-  let () = print_endline "Veuillez entree le nom de la piece qui represente votre joueur" in 
+  let () = print_endline "Veuillez entrer le nom de la piece qui represente votre joueur" in 
   let n = Scanf.scanf "%s\n" (fun x->x) in 
   let i = 0 in 
   let j = 0 in 
@@ -279,7 +279,7 @@ let init_full_player = fun () ->
 let init_player = fun r -> 
   let () = print_endline "Veuillez entrer la liste de mouvement pour votre joueur :" in 
   let lst_move = init_lst_move () in 
-  let () = print_endline "Veuillez entree le nom de la piece qui represente votre joueur" in 
+  let () = print_endline "Veuillez entrer le nom de la piece qui represente votre joueur" in 
   let n = Scanf.scanf "%s\n" (fun x->x) in 
   let i = 0 in 
   let j = 0 in 
@@ -287,9 +287,9 @@ let init_player = fun r ->
   {role = r; genre = p; pos_i = i; pos_j = j} 
   
 let rec choose_full_player = fun ()-> 
-  let () = print_endline "Veuillez choisir votre joueur : \nPour personalisez un joueur taper 1 pour choisir un joueur deja existant taper 2" in 
+  let () = print_endline "Veuillez choisir votre joueur : \nPersonaliser un joueur -> 1 \nChoisir un joueur deja existant -> 2" in 
   let c = Scanf.scanf "%d\n" (fun x->x) in 
-  if (c < 1 || c > 2) then let () = print_endline "Mauvais choix, recommencer" in choose_full_player () 
+  if (c < 1 || c > 2) then let () = print_endline "Mauvais choix, recommencez" in choose_full_player () 
   else 
     if c = 1 then init_full_player () 
     else 
@@ -298,9 +298,9 @@ let rec choose_full_player = fun ()->
       if p = 1 then p1 else p2
       
 let rec choose_player = fun r -> 
-  let () = if r =1 then print_endline "Veuillez choisir le joueur qui représentera la souris : \nPour personalisez un joueur taper 1 pour choisir un joueur deja existant taper 2"  else print_endline "Veuillez choisir le joueur qui représentera le chat : \nPour personalisez un joueur taper 1 pour choisir un joueur deja existant taper 2" in 
+  let () = if r =1 then print_endline "Veuillez choisir le joueur qui représentera la souris : \nPersonaliser un joueur -> 1 \nChoisir un joueur deja existant -> 2"  else print_endline "Veuillez choisir le joueur qui représentera le chat : \nPersonaliser un joueur -> 1 \nChoisir un joueur deja existant -> 2" in 
   let c = Scanf.scanf "%d\n" (fun x->x) in 
-  if (c < 1 || c > 2) then let () = print_endline "Mauvais choix, recommencer" in choose_player r 
+  if (c < 1 || c > 2) then let () = print_endline "Mauvais choix, recommencez" in choose_player r 
   else 
     if c = 1 then init_player r 
     else 
@@ -350,7 +350,7 @@ let () =
   let () = nb_l := l in 
   let mouse = choose_player 1 in 
   let cat = choose_player 2 in 
-  let () = print_endline "Veuillez maintenant choisir les positions de departs: \nRentrer la position de la souris :\ni :" in 
+  let () = print_endline "Veuillez maintenant choisir les positions de depart: \nRentrer la position de la souris :\ni :" in 
   let i_mouse = Scanf.scanf "%d\n" (fun x->x) in (*regarder plus tard ici aussi si on fait une verif de pos*) 
   let () = print_endline "j : " in 
   let j_mouse = Scanf.scanf "%d\n" (fun x->x) in
