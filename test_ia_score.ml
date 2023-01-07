@@ -290,26 +290,24 @@ let abs_val value =
   else
     value 
 
-let calcul_score = fun pos_cat pos_mouse ->
-    pos_cat.i + pos_mouse.i + pos_cat.j + pos_mouse.j + 20
 
 let calcul_score1 = fun pos_cat pos_mouse ->
   (pos_cat.i - pos_mouse.i)*(pos_cat.i - pos_mouse.i) + (pos_cat.j - pos_mouse.j)*(pos_cat.j - pos_mouse.j)
 
 let calcul_score2 = fun pos_cat pos_mouse ->
-  (pos_cat.i - pos_mouse.i)*(pos_cat.i - pos_mouse.i) + (pos_cat.j - pos_mouse.j)*(pos_cat.j - pos_mouse.j) - abs_val ( (!nb_c/2) - pos_mouse.i) - abs_val ( (!nb_l/2) - pos_mouse.j) 
+  (pos_cat.i - pos_mouse.i)*(pos_cat.i - pos_mouse.i) + (pos_cat.j - pos_mouse.j)*(pos_cat.j - pos_mouse.j) - abs_val ((!nb_c/2) - pos_mouse.i) - abs_val( (!nb_l/2) - pos_mouse.j) 
 
-let grille_score = fun pos_j1 pos_j2 p_turn p -> 
+let grille_score = fun pos_j2 pos_j1 p_turn p -> 
   if !p_turn = 0 then
     if !p = 0 then
-      calcul_score1 pos_j1 pos_j2
+      500 +calcul_score1 pos_j2 pos_j1
     else
-      calcul_score1 pos_j1 pos_j2
+      500 + calcul_score1 pos_j1 pos_j2
   else
     if !p = 0 then
       500 - calcul_score1 pos_j1 pos_j2
     else
-      500 - calcul_score1 pos_j1 pos_j2
+      500 - calcul_score1 pos_j2 pos_j1
 
 
 let build_tree_v2 = fun player_max player_min profondeur player_turn -> 
@@ -429,7 +427,7 @@ let play = fun mouse cat ia prof ->
   let p = ref 1 in
   let round = ref 0 in 
   while (!gg && !quit) do 
-    if !round = 30 then gg := false else 
+    if !round = 20 then gg := false else 
     let () = cat_position := {i = cat.pos_i; j = cat.pos_j} in 
     let () = p := (!p+1) mod 2 in
     let actuel_player = if !p=0 then mouse else cat in 
