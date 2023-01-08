@@ -45,6 +45,16 @@ let v5 = Opp v1
 let v6 = Opp v2
 let v7 = Opp v3 
 let v8 = Opp v4 
+let v9 = Sum(v3,v1)
+let v10 = Sum(v3,v2)
+let v11 = Sum(v4,v1)
+let v12 = Sum(v4,(Opp v2))
+let v13 = Opp v9
+let v14 = Opp v10
+let v15 = Opp v11
+let v16 = Opp v12
+
+
 
 let m1 = {vecteur = v1; taille_min = 1; taille_max =2}
 let m2 = {vecteur = v2; taille_min = 1; taille_max =2}
@@ -62,12 +72,24 @@ let m13 = {vecteur = v5; taille_min = 1; taille_max =1}
 let m14 = {vecteur = v6; taille_min = 1; taille_max =1}
 let m15 = {vecteur = v7; taille_min = 1; taille_max =1}
 let m16 = {vecteur = v8; taille_min = 1; taille_max =1}
+let m17 = {vecteur = v9; taille_min = 1; taille_max =1}
+let m18 = {vecteur = v10; taille_min = 1; taille_max =1}
+let m19 = {vecteur = v11; taille_min = 1; taille_max =1}
+let m20 = {vecteur = v12; taille_min = 1; taille_max =1}
+let m21 = {vecteur = v13; taille_min = 1; taille_max =1}
+let m22 = {vecteur = v14; taille_min = 1; taille_max =1}
+let m23 = {vecteur = v15; taille_min = 1; taille_max =1}
+let m24 = {vecteur = v16; taille_min = 1; taille_max =1}
+
+
 
 let reine = {name = "Reine"; move = [m1;m2;m3;m4;m5;m6;m7;m8]}
 let roi = {name = "Roi"; move = [m9;m10;m11;m12;m13;m14;m15;m16]}
+let fou = {name = "Fou"; move = [m3;m4;m7;m8]}
+let tour = {name = "Tour"; move = [m1;m2;m5;m6]}
+let cavalier = {name = "Cavalier"; move = [m17;m18;m19;m20;m21;m22;m23;m24]}
 
 let p1 = {role = 1; genre = reine; pos_i = 0; pos_j = 0}
-let p2 = {role = 2; genre = roi; pos_i = 4; pos_j = 4} 
 
 let impossible_pos = {i = -1; j = -1}
 let cat_position = ref impossible_pos (*Ici besoin d'une var globale pour la position du chat car ayant fait la fct possible_pos au debut sans me rendre compte que la souris pouvait jouer sur la chat il me faut la position du chat pour remedier a ce probleme mais je ne l'ai pas dans la focntion build tree dans laquelle j'utilise possible pos et je ne sais pas quel joueur est le chat et quel joueur est la souris*)
@@ -284,16 +306,22 @@ let init_player = fun r ->
 
 (*Cette fonction permet de choisir le joueur qui représentera soit la souris ou le chat dans le jeu et de personaliser ou choisir un joueur déjà existant.
    Si le choix est mauvais, la fonction recommence.*)
-let rec choose_player = fun r -> 
-  let () = if r =1 then print_endline "Veuillez choisir le joueur qui représentera la souris : \nPour personalisez un joueur taper 1 pour choisir un joueur deja existant taper 2"  else print_endline "Veuillez choisir le joueur qui représentera le chat : \nPour personalisez un joueur taper 1 pour choisir un joueur deja existant taper 2" in 
-  let c = Scanf.scanf "%d\n" (fun x->x) in 
-  if (c < 1 || c > 2) then let () = print_endline "Mauvais choix, recommencer" in choose_player r 
-  else 
-    if c = 1 then init_player r 
+   let rec choose_player = fun r -> 
+    let () = if r =1 then print_endline "Veuillez choisir le joueur qui représentera la souris : \nPour personalisez un joueur taper 1 pour choisir un joueur deja existant taper 2"  else print_endline "Veuillez choisir le joueur qui représentera le chat : \nPour personalisez un joueur taper 1 pour choisir un joueur deja existant taper 2" in 
+    let c = Scanf.scanf "%d\n" (fun x->x) in 
+    if (c < 1 || c > 2) then let () = print_endline "Mauvais choix, recommencer" in choose_player r 
     else 
-      let () = print_endline "Vous avez le choix : \nRoi -> 1 \nReine -> 2" in 
-      let p = Scanf.scanf "%d\n" (fun x->x) in 
-      if p = 1 then {role = r; genre = roi; pos_i = 0; pos_j = 0} else {role = r; genre = reine; pos_i = 0; pos_j = 0}
+      if c = 1 then init_player r 
+      else 
+        let () = print_endline "Vous avez le choix : \nRoi -> 1 \nReine -> 2 \nFou -> 3 \nTour -> 4 \nCavalier -> 5" in 
+        let p = Scanf.scanf "%d\n" (fun x->x) in 
+        match p with
+        1 -> {role = r; genre = roi; pos_i = 0; pos_j = 0}
+        | 2 -> {role = r; genre = reine; pos_i = 0; pos_j = 0}
+        | 3 -> {role = r; genre = fou; pos_i = 0; pos_j = 0}
+        | 4 -> {role = r; genre = tour; pos_i = 0; pos_j = 0}
+        | 5 -> {role = r; genre = cavalier; pos_i = 0; pos_j = 0}
+        | _ -> {role = r; genre = roi; pos_i = 0; pos_j = 0}
 
 
 (*Definition des fonctions pour l'IA*)
