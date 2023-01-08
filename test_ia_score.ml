@@ -228,6 +228,22 @@ let display_v4 = fun j1 j2 lst_pos ->
     else Printf.printf "%d  " j;
   done;
   print_newline ()  
+
+let display_nodmin = fun pos_max pos_min -> 
+  Printf.printf "pos_max = (%d, %d) " (pos_max.i) (pos_max.j);
+  Printf.printf "pos_min = (%d, %d) " (pos_min.i) (pos_min.j);
+  print_endline "Nodemin"
+
+let display_nodmax = fun pos_max pos_min -> 
+  let () = Printf.printf "pos_max = (%d, %d) " (pos_max.i) (pos_max.j) in
+  let () = Printf.printf "pos_min = (%d, %d) " (pos_min.i) (pos_min.j) in
+  print_endline "Nodemax"
+
+let rec print_tree_v5 = fun t ->
+  match t with 
+  Leaves x -> Printf.printf "%d " x 
+  | Nodmax (lst, pos_max, pos_min) -> let a = List.map (fun t -> print_tree_v5 t) lst in let () = display_nodmax pos_max pos_min in print_endline " "
+  | Nodmin (lst, pos_max, pos_min) -> let a = List.map (fun t -> print_tree_v5 t) lst in let () = display_nodmin pos_max pos_min in print_endline " "
   
 
 (*Cette fonction initialise une liste de mouvements en demandant à l'utilisateur de saisir les informations de chaque mouvement.
@@ -422,13 +438,25 @@ let application_of_alpha_beta = fun t ->
 let application_of_negamax = fun t -> 
   negamax t (-max_int) max_int
 
+let play_ia = fun player_max player_min prof player_turn -> 
+  let tree = build_tree_v2 player_max player_min prof player_turn in 
+  let lst_tree = match_tree_nodmax tree in 
+  (* let () = print_tree_v5 tree in  *)
+  let score_tree = List.map (fun t -> minimax t) lst_tree in
+  let m = max_lst score_tree in 
+  (* A modifier pour prendre en compte quand plusieurs valeurs max*)
+  let k = number_pos score_tree m in
+  let node = elt_of_lst_tree k lst_tree in 
+  let new_pos = match_tree_pos_max node in 
+  {pos = new_pos; point = m}
+
 
 
 (*Cette fonction permet de jouer au jeu en demandant à l'utilisateur de choisir une position sur la grille où se déplacer.
    Si la position choisie n'est pas valide, le joueur doit rejouer.
    Si l'utilisateur entre 0, la partie s'arrête.
    Sinon, le joueur qui a joué (soit le chat, soit la souris) se déplace et si l'un d'eux gagne, la boucle de jeu se termine.*)
-let play = fun mouse cat ia prof -> 
+let play = fun mouse cat ia prof view_ia -> 
   let () = print_endline "Veuillez entrer le numéro de la position pour jouer ou 0 pour quitter" in 
   let gg = ref true in 
   let quit = ref true in 
@@ -448,14 +476,18 @@ let play = fun mouse cat ia prof ->
     if (!p) = ia || ia = 2 then
       let player_max = actuel_player in 
       let player_min = if !p = 0 then cat else mouse in 
-      let tree = build_tree_v2 player_max player_min prof p in 
-      let lst_tree = match_tree_nodmax tree in 
-      let score_tree = List.map (fun t -> minimax t) lst_tree in
-      let m = max_lst score_tree in 
+      let pos_max_tree = play_ia player_max player_min prof p in 
+      let pos_first_tree = play_ia player_max player_min 1 p in 
+      let new_pos = if (pos_max_tree.point) >= (pos_first_tree.point) then (pos_max_tree.pos) else (pos_first_tree.pos) in 
+      (* let tree = build_tree_v2 player_max player_min prof p in 
+      let lst_tree = match_tree_nodmax tree in  *)
+      (* let () = print_tree_v5 tree in  *)
+      (* let score_tree = List.map (fun t -> minimax t) lst_tree in
+      let m = max_lst score_tree in  *)
       (* A modifier pour prendre en compte quand plusieurs valeurs max*)
-      let k = number_pos score_tree m in
+      (* let k = number_pos score_tree m in
       let node = elt_of_lst_tree k lst_tree in 
-      let new_pos = match_tree_pos_max node in 
+      let new_pos = match_tree_pos_max node in  *)
       if new_pos = impossible_pos then 
         let () = print_endline "Erreur de l'ia" in 
         quit := false 
@@ -511,12 +543,13 @@ let () =
   let () = print_endline "Quelle configuration souhaitez vous ? \nMouse ia vs Cat player -> 0 \nMouse player vs Cat ia -> 1 \nMouse ia vs Cat ia -> 2 \nMouse player vs Cat player -> 3" in 
   let ia = Scanf.scanf "%d\n" (fun x->x) in 
   if ia = 3 then 
-    play mouse cat ia 0 
+    play mouse cat ia 0 0
   else 
     let () = print_endline "Veuillez choisir la profondeur de l'arbre creer par l'IA" in 
     let prof = Scanf.scanf "%d\n" (fun x->x) in
-    play mouse cat ia prof 
+    let () = print_endline "Voulez vous appuyer sur une touche pour faire jouer l'ia ? \nOui -> 1 \nNon -> 0" in 
+    let view_ia = Scanf.scanf "%d\n" (fun x->x) in
+    play mouse cat ia prof view_ia 
 
 
-  
   
