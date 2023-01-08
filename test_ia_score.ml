@@ -31,6 +31,11 @@ type position = {
   j : int (*position sur les colonnes*)
 }
 
+type score = {
+  pos : position ; 
+  point : int 
+}
+
 type 'a tree = 
   Leaves of 'a 
 | Nodmin of 'a tree list * position * position (*pos_max pos_min*)
