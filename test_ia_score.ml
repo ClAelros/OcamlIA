@@ -305,9 +305,9 @@ let grille_score = fun pos_j2 pos_j1 p_turn p ->
       500 + calcul_score1 pos_j1 pos_j2
   else
     if !p = 0 then
-      500 - calcul_score1 pos_j1 pos_j2
+      500 + calcul_score1 pos_j1 pos_j2
     else
-      500 - calcul_score1 pos_j2 pos_j1
+      500 + calcul_score1 pos_j2 pos_j1
 
 (* A utiliser pour calculer les positions quand plusieurs ressortent avec la même valeur dans le minimax
    L'appliquer sur la liste des pos qui ont le score max (à créer) puis prendre le max_lst de play_score appliquée à tous les elts de la liste*)
