@@ -34,7 +34,7 @@ type position = {
 type score = {
   pos : position ; 
   point : int 
-}
+}  
 
 type 'a tree = 
   Leaves of 'a 
