@@ -578,7 +578,7 @@ let play = fun mouse cat ia prof ->
   let p = ref 1 in
   let round = ref 0 in 
   while (!gg && !quit) do 
-    if !round = 10 then 
+    if !round = 100 then 
       begin
         Graphics.clear_graph ();
         Graphics.set_font "-*-fixed-medium-r-semicondensed--30-*-*-*-*-*-iso8859-1";
@@ -593,70 +593,38 @@ let play = fun mouse cat ia prof ->
         gg := false;
       end 
     else 
-      let () = cat_position := {i = cat.pos_i; j = cat.pos_j} in 
-      let () = p := (!p+1) mod 2 in
-      let actuel_player = if !p=0 then mouse else cat in 
-      let pos_lst = possible_pos actuel_player in
-      let max_pos = List.length pos_lst in 
-      let () = Printf.printf "Round n°%d\n" (!round) in  
-      let () = display_v4 mouse cat pos_lst in  
-      let () = display_lst_pos_finale pos_lst in 
-      let () = if !p =0 then print_endline "Souris a toi de jouer" else print_endline "Chat a toi de jouer" in 
-      (* On efface l'écran avant de dessiner le damier et le point *)
-      Graphics.clear_graph ();
-      draw_board (!nb_l-1) (!nb_c-1);
-      draw_point (cat.pos_j) ((!nb_l-1) - cat.pos_i) Graphics.red;
-      draw_point (mouse.pos_j) ((!nb_l-1) - mouse.pos_i) Graphics.green;
-      (* On met à jour l'affichage *)
-      Graphics.synchronize ();    
-      if (!p) = ia || ia = 2 then
-        let player_max = actuel_player in 
-        let player_min = if !p = 0 then cat else mouse in 
-        let tree = build_tree_v2 player_max player_min prof in 
-        let lst_tree = match_tree_nodmax tree in 
-        let score_tree = List.map (fun t -> minimax t) lst_tree in
-        let m = max_lst score_tree in 
-        let k = number_pos score_tree m in 
-        let node = elt_of_lst_tree k lst_tree in 
-        let new_pos = match_tree_pos_max node in 
-        if new_pos = impossible_pos then 
-          let () = print_endline "Erreur de l'ia" in 
-          quit := false 
-        else
-          let () = move_player actuel_player new_pos in 
-          (* let () = round := (!round+1) in *)
-          if actuel_player.role = 1 then 
-            if is_win cat mouse then
-              begin              
-                Graphics.clear_graph ();
-                Graphics.set_font "-*-fixed-medium-r-semicondensed--30-*-*-*-*-*-iso8859-1";
-                Graphics.set_color Graphics.black;
-                Graphics.moveto (325) (500);
-                Graphics.draw_string "CHAT GAGNE";
-                Graphics.moveto (100) (300);
-                Graphics.draw_string "PRESSEZ N'IMPORTE QUELLE TOUCHE POUR QUITTER";
-                Graphics.synchronize ();
-                let _ = Graphics.wait_next_event [Graphics.Key_pressed] in
-                Graphics.close_graph (); 
-                gg := false;
-              end
-            else ()
-          else()  
-      else  
-        (* let new_pos = Scanf.scanf "%d\n" (fun x->x) in (*C'est ici qu'il faudra l'appel a une fonction pour l'ia*) *)
-        draw_pos pos_lst;
-        Graphics.synchronize ();
-        (* On récupère la touche pressée par l'utilisateur *)
-        let key = Graphics.read_key () in
-        let new_pos = char_to_num key max_pos in
-        if (new_pos < 1 || new_pos > max_pos) then 
-          if new_pos = 0 then quit:=false 
-          else let () = print_endline "Position impossible veuillez rejouer" in p := (!p+1) mod 2 
-        else 
-          let play_pos = elt_of_lst new_pos pos_lst in 
-          if play_pos = impossible_pos then print_endline "Mauvaise touche veuillez rejouer" 
-          else 
-            let () = move_player actuel_player play_pos in 
+      begin
+        let () = cat_position := {i = cat.pos_i; j = cat.pos_j} in 
+        let () = p := (!p+1) mod 2 in
+        let actuel_player = if !p=0 then mouse else cat in 
+        let pos_lst = possible_pos actuel_player in
+        let max_pos = List.length pos_lst in 
+        let () = Printf.printf "Round n°%d\n" (!round) in  
+        let () = display_v4 mouse cat pos_lst in  
+        let () = display_lst_pos_finale pos_lst in 
+        let () = if !p =0 then print_endline "Souris a toi de jouer" else print_endline "Chat a toi de jouer" in 
+        (* On efface l'écran avant de dessiner le damier et le point *)
+        Graphics.clear_graph ();
+        draw_board (!nb_l-1) (!nb_c-1);
+        draw_point (cat.pos_j) ((!nb_l-1) - cat.pos_i) Graphics.red;
+        draw_point (mouse.pos_j) ((!nb_l-1) - mouse.pos_i) Graphics.green;
+        (* On met à jour l'affichage *)
+        Graphics.synchronize ();    
+        if (!p) = ia || ia = 2 then
+          let player_max = actuel_player in 
+          let player_min = if !p = 0 then cat else mouse in 
+          let tree = build_tree_v2 player_max player_min prof in 
+          let lst_tree = match_tree_nodmax tree in 
+          let score_tree = List.map (fun t -> minimax t) lst_tree in
+          let m = max_lst score_tree in 
+          let k = number_pos score_tree m in 
+          let node = elt_of_lst_tree k lst_tree in 
+          let new_pos = match_tree_pos_max node in 
+          if new_pos = impossible_pos then 
+            let () = print_endline "Erreur de l'ia" in 
+            quit := false 
+          else
+            let () = move_player actuel_player new_pos in 
             let () = round := (!round+1) in
             if actuel_player.role = 1 then 
               if is_win cat mouse then
@@ -673,8 +641,44 @@ let play = fun mouse cat ia prof ->
                   Graphics.close_graph (); 
                   gg := false;
                 end
-              else () 
-            else () 
+              else ()
+            else()  
+        else  
+          begin
+            (* let new_pos = Scanf.scanf "%d\n" (fun x->x) in (*C'est ici qu'il faudra l'appel a une fonction pour l'ia*) *)
+            draw_pos pos_lst;
+            Graphics.synchronize ();
+            (* On récupère la touche pressée par l'utilisateur *)
+            let key = Graphics.read_key () in
+            let new_pos = char_to_num key max_pos in
+            if (new_pos < 1 || new_pos > max_pos) then 
+              if new_pos = 0 then quit:=false 
+              else let () = print_endline "Position impossible veuillez rejouer" in p := (!p+1) mod 2 
+            else 
+              let play_pos = elt_of_lst new_pos pos_lst in 
+              if play_pos = impossible_pos then print_endline "Mauvaise touche veuillez rejouer" 
+              else 
+                let () = move_player actuel_player play_pos in 
+                let () = round := (!round+1) in
+                if actuel_player.role = 1 then 
+                  if is_win cat mouse then
+                    begin              
+                      Graphics.clear_graph ();
+                      Graphics.set_font "-*-fixed-medium-r-semicondensed--30-*-*-*-*-*-iso8859-1";
+                      Graphics.set_color Graphics.black;
+                      Graphics.moveto (325) (500);
+                      Graphics.draw_string "CHAT GAGNE";
+                      Graphics.moveto (100) (300);
+                      Graphics.draw_string "PRESSEZ N'IMPORTE QUELLE TOUCHE POUR QUITTER";
+                      Graphics.synchronize ();
+                      let _ = Graphics.wait_next_event [Graphics.Key_pressed] in
+                      Graphics.close_graph (); 
+                      gg := false;
+                    end
+                  else () 
+                else ()
+          end
+      end
     done
   
 
