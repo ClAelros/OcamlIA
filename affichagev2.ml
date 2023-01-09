@@ -674,9 +674,11 @@ let play = fun mouse cat ia prof view_ia ->
         Graphics.clear_graph ();
         Graphics.set_font "-*-fixed-medium-r-semicondensed--30-*-*-*-*-*-iso8859-1";
         Graphics.set_color Graphics.black;
-        Graphics.moveto (325) (500);
+        Graphics.moveto (205) (600);
+        Graphics.draw_string "LIMITE DE ROUNDS ATTEINTE";
+        Graphics.moveto (315) (400);
         Graphics.draw_string "SOURIS GAGNE";
-        Graphics.moveto (100) (300);
+        Graphics.moveto (100) (200);
         Graphics.draw_string "PRESSEZ N'IMPORTE QUELLE TOUCHE POUR QUITTER";
         Graphics.synchronize ();
         let _ = Graphics.wait_next_event [Graphics.Key_pressed] in
@@ -726,6 +728,12 @@ let play = fun mouse cat ia prof view_ia ->
               if is_win cat mouse then
                 begin              
                   Graphics.clear_graph ();
+                  draw_board (!nb_l-1) (!nb_c-1);
+                  draw_point (cat.pos_j) ((!nb_l-1) - cat.pos_i) Graphics.red;
+                  draw_point (mouse.pos_j) ((!nb_l-1) - mouse.pos_i) Graphics.green;
+                  Graphics.synchronize ();
+                  Unix.sleep 3;
+                  Graphics.clear_graph ();
                   Graphics.set_font "-*-fixed-medium-r-semicondensed--30-*-*-*-*-*-iso8859-1";
                   Graphics.set_color Graphics.black;
                   Graphics.moveto (325) (500);
@@ -758,7 +766,13 @@ let play = fun mouse cat ia prof view_ia ->
                 let () = round := (!round+1) in 
                 if actuel_player.role = 1 then 
                   if is_win cat mouse then
-                    begin              
+                    begin          
+                      Graphics.clear_graph ();
+                      draw_board (!nb_l-1) (!nb_c-1);
+                      draw_point (cat.pos_j) ((!nb_l-1) - cat.pos_i) Graphics.red;
+                      draw_point (mouse.pos_j) ((!nb_l-1) - mouse.pos_i) Graphics.green;
+                      Graphics.synchronize ();
+                      Unix.sleep 3;
                       Graphics.clear_graph ();
                       Graphics.set_font "-*-fixed-medium-r-semicondensed--30-*-*-*-*-*-iso8859-1";
                       Graphics.set_color Graphics.black;
