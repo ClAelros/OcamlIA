@@ -516,7 +516,7 @@ let play = fun mouse cat ia prof view_ia ->
         let () = print_endline "Erreur de l'ia" in 
         quit := false 
       else
-        let s = if view_ia = 1 then let () = print_endline "appuyer sur une touche" in Scanf.scanf "%s\n" (fun x -> x) else "no" in
+        let _ = if view_ia = 1 then let () = print_endline "appuyer sur une touche" in Scanf.scanf "%s\n" (fun x -> x) else "no" in
         let () = move_player actuel_player new_pos in 
         let () = round := (!round+1) in 
         if actuel_player.role = 1 then 
