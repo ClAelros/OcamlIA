@@ -687,15 +687,15 @@ let play = fun mouse cat ia prof view_ia ->
       end
     else 
       begin          
-        let () = cat_position := {i = cat.pos_i; j = cat.pos_j} in 
-        let () = p := (!p+1) mod 2 in
+        cat_position := {i = cat.pos_i; j = cat.pos_j};
+        p := (!p+1) mod 2;
         let actuel_player = if !p=0 then mouse else cat in 
         let pos_lst = possible_pos actuel_player in
         let max_pos = List.length pos_lst in 
-        let () = Printf.printf "Round n°%d\n" (!round) in  
-        let () = display_v4 mouse cat pos_lst in  
-        let () = display_lst_pos_finale pos_lst in 
-        let () = if !p =0 then print_endline "Souris a toi de jouer" else print_endline "Chat a toi de jouer" in 
+        Printf.printf "Round n°%d\n" (!round); 
+        display_v4 mouse cat pos_lst; 
+        display_lst_pos_finale pos_lst;
+        if !p =0 then print_endline "Souris a toi de jouer" else print_endline "Chat a toi de jouer";
         (* On efface l'écran avant de dessiner le damier et le point *)
         Graphics.clear_graph ();
         draw_board (!nb_l-1) (!nb_c-1);
