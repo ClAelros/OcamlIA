@@ -2,7 +2,7 @@
 #require "graphics"
 #require "unix"
 
-(*Definition des constantes et des types du projet*)
+(* Définition des constantes et des types du projet *)
 let nb_l = ref 0
 let nb_c = ref 0
 let case_size = 50
@@ -25,15 +25,15 @@ type piece = {
 }
 
 type player = {
-  role : int; (*chat ou souris*) (*1 pour souris 2 pour chat*)
+  role : int; (* chat ou souris *) (* 1 pour souris 2 pour chat *)
   genre : piece; 
   mutable pos_i : int;
   mutable pos_j : int 
 }
 
 type position = {
-  i : int; (*position sur les lignes*)
-  j : int (*position sur les colonnes*)
+  i : int; (* position sur les lignes *)
+  j : int (* position sur les colonnes *)
 }
 
 type score = {
@@ -43,9 +43,8 @@ type score = {
 
 type 'a tree = 
   Leaves of 'a 
-| Nodmin of 'a tree list * position * position (*pos_max pos_min*)
-| Nodmax of 'a tree list * position * position (*pos_max pos_min*) 
-
+| Nodmin of 'a tree list * position * position (* pos_max pos_min *)
+| Nodmax of 'a tree list * position * position (* pos_max pos_min *) 
 
 let v1 = Vertical 1 
 let v2 = Horizontal 1 
@@ -63,8 +62,6 @@ let v13 = Opp v9
 let v14 = Opp v10
 let v15 = Opp v11
 let v16 = Opp v12
-
-
 
 let m1 = {vecteur = v1; taille_min = 1; taille_max =2}
 let m2 = {vecteur = v2; taille_min = 1; taille_max =2}
@@ -91,8 +88,6 @@ let m22 = {vecteur = v14; taille_min = 1; taille_max =1}
 let m23 = {vecteur = v15; taille_min = 1; taille_max =1}
 let m24 = {vecteur = v16; taille_min = 1; taille_max =1}
 
-
-
 let reine = {name = "Reine"; move = [m1;m2;m3;m4;m5;m6;m7;m8]}
 let roi = {name = "Roi"; move = [m9;m10;m11;m12;m13;m14;m15;m16]}
 let fou = {name = "Fou"; move = [m3;m4;m7;m8]}
@@ -102,17 +97,17 @@ let cavalier = {name = "Cavalier"; move = [m17;m18;m19;m20;m21;m22;m23;m24]}
 let p1 = {role = 1; genre = reine; pos_i = 0; pos_j = 0}
 
 let impossible_pos = {i = -1; j = -1}
-let cat_position = ref impossible_pos (*Ici besoin d'une var globale pour la position du chat car ayant fait la fct possible_pos au debut sans me rendre compte que la souris pouvait jouer sur la chat il me faut la position du chat pour remedier a ce probleme mais je ne l'ai pas dans la focntion build tree dans laquelle j'utilise possible pos et je ne sais pas quel joueur est le chat et quel joueur est la souris*)
+let cat_position = ref impossible_pos
 
 
-(*Cette fonction prend en entrée deux nombres x et y et retourne un vecteur.*)
+(* Cette fonction prend en entrée deux nombres x et y et retourne un vecteur *)
 let make_vect = fun x y ->
   if x > 0 && y >0 then Sum(Horizontal x, Vertical y)
   else if x < 0 && y >0 then Sum(Opp (Horizontal (-x)), Vertical y)
   else if x > 0 && y <0 then Sum(Horizontal x, Opp (Vertical (-y)))
   else Sum(Opp (Horizontal (-x)), Opp (Vertical (-y))) 
 
-(*Cette fonction prend en entrée un vecteur "v" et renvoie sa valeur horizontale.*)
+(* Cette fonction prend en entrée un vecteur et renvoie sa valeur horizontale *)
 let rec read_vect_h = fun v -> 
   match v with
   Horizontal x -> x
@@ -120,7 +115,7 @@ let rec read_vect_h = fun v ->
   | Sum (x, y) -> (read_vect_h x)+(read_vect_h y)
   | Opp v -> (-1)*(read_vect_h v)
 
-(*Cette fonction prend en entrée un vecteur "v" et renvoie sa valeur verticale.*)
+(* Cette fonction prend en entrée un vecteur et renvoie sa valeur verticale *)
 let rec read_vect_v = fun v -> 
   match v with
   Horizontal x -> 0
@@ -129,7 +124,7 @@ let rec read_vect_v = fun v ->
   | Opp v -> (-1)*(read_vect_v v)
 
 
-(*Definition des fonctions pour traiter les mouvement possibles d'un personnage*)
+(* Définition des fonctions pour traiter les mouvements possibles d'un personnage *)
 let new_taille_move = fun m i j -> 
   let p_j = read_vect_h m.vecteur in 
   let p_i = read_vect_v m.vecteur in 
@@ -141,7 +136,7 @@ let new_taille_move = fun m i j ->
       else test_taille (t-1) 
   in test_taille taille 
 
-(*Cette fonction renvoie la liste des mouvements possibles d'un joueur en fonction de sa position actuelle.*)
+(* Cette fonction renvoie la liste des mouvements possibles d'un joueur en fonction de sa position actuelle *)
 let possible_move = fun joueur -> 
   let rec view_list = fun lst return -> 
     match lst with 
@@ -151,15 +146,14 @@ let possible_move = fun joueur ->
             else view_list t return 
   in view_list (joueur.genre.move) [] 
 
-
-(*Definition des fonctions pour passer des mouvements au positions*)
+(* Définition des fonctions pour passer des mouvements aux positions *)
 let rec concatenate = fun lst1 lst2 -> 
   match lst1 with 
   [] -> lst2 
   | h::t -> h :: concatenate t lst2 
 
-(*Cette fonction prend en entrée un mouvement "m", une position initiale en abscisse "pos_i" et une position initiale en ordonnée "pos_j".
-   Elle renvoie la liste des positions successives que prendra un objet en suivant le mouvement "m"*)  
+(* Cette fonction prend en paramètres un mouvement m, une position initiale en abscisse et une position initiale en ordonnée.
+   Elle renvoie la liste des positions successives que prendra un objet en suivant le mouvement m *)  
 let move_to_pos = fun m pos_i pos_j ->   
   let rec constr = fun k -> 
     if k < m.taille_min then []
@@ -170,7 +164,7 @@ let move_to_pos = fun m pos_i pos_j ->
       new_pos :: constr (k-1)
   in constr m.taille_max  
 
-(*Cette fonction renvoie la liste des positions possibles pour un joueur donné.*)
+(* Cette fonction renvoie la liste des positions possibles pour un joueur donné *)
 let cat_on_the_road = fun lst_pos -> 
   if List.mem (!cat_position) lst_pos then 
     let rec build_new_lst = fun lst return -> 
@@ -190,16 +184,16 @@ let possible_pos = fun joueur ->
   cat_on_the_road lst_pos 
 
 
-(*Definition des fonctions de verification des bonnes conditions du jeu*)
+(* Définition des fonctions de vérification des bonnes conditions du jeu *)
 let move_player = fun joueur pos -> 
   joueur.pos_i <- pos.i ;
   joueur.pos_j <- pos.j 
 
-(*Cette fonction vérifie si une position donnée est présente dans une liste de positions.*)
+(* Cette fonction vérifie si une position donnée est présente dans une liste de positions *)
 let verif_pos = fun lst_pos pos -> 
   List.mem pos lst_pos
 
-(*Cette fonction renvoie la position de l'élément "pos" dans la liste "lst_pos", ou -1 s'il n'y est pas.*)
+(* Cette fonction renvoie la position de l'élément pos dans la liste lst_pos, ou -1 s'il n'y est pas *)
 let number_pos = fun lst_pos pos -> 
   let rec match_lst = fun lst k -> 
     match lst with
@@ -207,13 +201,13 @@ let number_pos = fun lst_pos pos ->
     | h::t -> if h = pos then k else match_lst t (k+1)
   in match_lst lst_pos 1 
 
-(*Cette fonction vérifie si le chat a gagné en comparant la liste des positions possibles du chat et la position actuelle de la souris.*)
+(* Cette fonction vérifie si le chat a gagné en comparant la liste des positions possibles du chat et la position actuelle de la souris *)
 let is_win = fun cat mouse -> 
   let lst_pos_cat = possible_pos cat in 
   let pos_mouse = {i = mouse.pos_i; j = mouse.pos_j} in 
   verif_pos lst_pos_cat pos_mouse 
 
-(*Cette fonction retourne l'élément à la position i dans la liste lst.*)
+(* Cette fonction retourne l'élément à la i-ème position de la liste lst *)
 let elt_of_lst = fun i lst -> 
   let rec match_lst = fun lst x ->
     match lst with 
@@ -222,7 +216,7 @@ let elt_of_lst = fun i lst ->
   in match_lst lst 1
 
 
-(*Definition des fonctions d'affichage (temporaire avant d'avoir le graphics)*)
+(* Définition des fonctions d'affichage *)
 
 (* Fonction pour dessiner une case du damier *)
 let draw_case x y color =
@@ -446,8 +440,8 @@ let rec print_tree_v5 = fun t ->
   | Nodmin (lst, pos_max, pos_min) -> let _ = List.map (fun t -> print_tree_v5 t) lst in let () = display_nodmin pos_max pos_min in print_endline " "
   
 
-(*Cette fonction initialise une liste de mouvements en demandant à l'utilisateur de saisir les informations de chaque mouvement.
-   Si l'utilisateur décide d'arrêter, la fonction renvoie la liste de mouvements créée.*)
+(* Cette fonction initialise une liste de mouvements en demandant à l'utilisateur de saisir les informations de chaque mouvement.
+   Si l'utilisateur décide d'arrêter, la fonction renvoie la liste de mouvements créée *)
 let init_lst_move = fun () -> 
   let rec init_lst_move_rec = fun x lst -> 
     if x = 0 then lst 
@@ -456,38 +450,38 @@ let init_lst_move = fun () ->
       let h = Scanf.scanf "%d\n" (fun x -> x) in
       let () = print_endline "Veuillez entrer la composante verticale du vecteur du mouvement " in
       let v = Scanf.scanf "%d\n" (fun x -> x) in
-      let () = print_endline "Veuillez entrer la taille maximum du mouvement (>= 1)" in 
+      let () = print_endline "Veuillez entrer la taille maximale du mouvement (>= 1)" in 
       let t_max = Scanf.scanf "%d\n" (fun x -> x) in
-      let () = print_endline "Veuillez entrer la taille minimale du mouvement (>=1)" in
+      let () = print_endline "Veuillez entrer la taille minimale du mouvement (>= 1)" in
       let t_min = Scanf.scanf "%d\n" (fun x -> x) in
       if (t_max < 1 || t_min < 1) then 
         let () = print_endline "Mouvement non valide, veuillez recommencer" in 
         init_lst_move_rec 1 lst 
       else
         let new_move = {vecteur = make_vect h v; taille_min = t_min; taille_max = t_max} in
-        let () = print_endline "Voulez vous entrer un autre mouvement ? Tapez 1 pour continuer 0 pour arreter" in 
+        let () = print_endline "Voulez-vous entrer un autre mouvement ? Tapez 1 pour continuer, ou 0 pour arrêter" in 
         let y = Scanf.scanf "%d\n" (fun x -> x) in 
         init_lst_move_rec y (new_move::lst)
   in init_lst_move_rec 1 []  
 
-(*Cette fonction initialise un joueur en demandant à l'utilisateur de rentrer une liste de mouvements et un nom de pièce.
-   Elle crée ensuite un objet "joueur" avec ces informations, ainsi que des coordonnées initiales de position (0,0) et un rôle prédéfini (paramètre de la fonction).*)
+(* Cette fonction initialise un joueur en demandant à l'utilisateur de rentrer une liste de mouvements et un nom de pièce.
+   Elle crée ensuite un objet "joueur" avec ces informations, ainsi que des coordonnées initiales de position (0,0) et un rôle prédéfini (en paramètre de la fonction) *)
 let init_player = fun r -> 
-  let () = print_endline "Veuillez entrer la liste de mouvement pour votre joueur :" in 
+  let () = print_endline "Veuillez entrer la liste des mouvements de votre joueur :" in 
   let lst_move = init_lst_move () in 
-  let () = print_endline "Veuillez entree le nom de la piece qui represente votre joueur" in 
+  let () = print_endline "Veuillez entrer le nom de la pièce qui représente votre joueur :" in 
   let n = Scanf.scanf "%s\n" (fun x->x) in 
   let i = 0 in 
   let j = 0 in 
   let p = {name = n; move = lst_move} in 
   {role = r; genre = p; pos_i = i; pos_j = j} 
 
-(*Cette fonction permet de choisir le joueur qui représentera soit la souris ou le chat dans le jeu et de personaliser ou choisir un joueur déjà existant.
-   Si le choix est mauvais, la fonction recommence.*)
+(* Cette fonction permet de choisir le joueur qui représentera soit la souris, soit le chat dans le jeu, et de personnaliser ou choisir un joueur déjà existant.
+   Si le choix est mauvais, la fonction se relance *)
    let rec choose_player = fun r -> 
-    let () = if r =1 then print_endline "Veuillez choisir le joueur qui représentera la souris : \nPour personalisez un joueur taper 1 pour choisir un joueur deja existant taper 2"  else print_endline "Veuillez choisir le joueur qui représentera le chat : \nPour personalisez un joueur taper 1 pour choisir un joueur deja existant taper 2" in 
+    let () = if r =1 then print_endline "Veuillez choisir le joueur qui représentera la souris : \nPour personnaliser un nouveau joueur : tapez 1, pour choisir un joueur déjà existant : tapez 2"  else print_endline "Veuillez choisir le joueur qui représentera le chat : \nPour personnaliser un nouveau joueur : tapez 1, pour choisir un joueur déjà existant : tapez 2" in 
     let c = Scanf.scanf "%d\n" (fun x->x) in 
-    if (c < 1 || c > 2) then let () = print_endline "Mauvais choix, recommencer" in choose_player r 
+    if (c < 1 || c > 2) then let () = print_endline "Mauvais choix, recommencez" in choose_player r 
     else 
       if c = 1 then init_player r 
       else 
@@ -502,16 +496,14 @@ let init_player = fun r ->
         | _ -> {role = r; genre = roi; pos_i = 0; pos_j = 0}
 
 
-(*Definition des fonctions pour l'IA*)
+(* Définition des fonctions pour l'IA *)
 
-
-(*Definition de la fonction pour construire l'arbre*)
+(* Définition de la fonction pour construire l'arbre *)
 let abs_val value = 
   if value < 0 then
     -value
   else
     value 
-
 
 let calcul_score1 = fun pos_cat pos_mouse ->
   (pos_cat.i - pos_mouse.i)*(pos_cat.i - pos_mouse.i) + (pos_cat.j - pos_mouse.j)*(pos_cat.j - pos_mouse.j)
@@ -531,14 +523,12 @@ let grille_score = fun pos_j2 pos_j1 p_turn p ->
     else
       500 - calcul_score2 pos_j2 pos_j1
 
-
-
-let build_tree_v2 = fun player_max player_min profondeur player_turn -> 
+let build_tree = fun player_max player_min profondeur player_turn -> 
   let pos_max = {i = player_max.pos_i; j = player_max.pos_j} in
   let pos_min = {i = player_min.pos_i; j = player_min.pos_j} in
   let prof_nodmax = profondeur mod 2 in 
   let p = ref 0 in 
-  let rec build_tree_rec_v2 = fun pos_maxi pos_mini profondeur -> 
+  let rec build_tree_rec = fun pos_maxi pos_mini profondeur -> 
     let () = p := if (profondeur mod 2) = prof_nodmax then 0 else 1 in   
     let p_max = {role = player_max.role; genre = player_max.genre; pos_i = pos_maxi.i; pos_j = pos_maxi.j} in
     let p_min = {role = player_min.role; genre = player_min.genre; pos_i = pos_mini.i; pos_j = pos_mini.j} in
@@ -553,13 +543,13 @@ let build_tree_v2 = fun player_max player_min profondeur player_turn ->
       let lst_pos = if !p = 0 then possible_pos p_max else possible_pos p_min in
       let pos_autre = if !p = 0 then pos_mini else pos_maxi in
       if !p = 0 then 
-        List.map(fun x -> Nodmin((build_tree_rec_v2 x pos_autre (profondeur-1)), x, pos_autre)) lst_pos
+        List.map(fun x -> Nodmin((build_tree_rec x pos_autre (profondeur-1)), x, pos_autre)) lst_pos
       else
-        List.map(fun x -> Nodmax((build_tree_rec_v2 pos_autre x (profondeur-1)), pos_autre, x)) lst_pos 
-  in  Nodmax((build_tree_rec_v2 pos_max pos_min profondeur), pos_max, pos_min)
+        List.map(fun x -> Nodmax((build_tree_rec pos_autre x (profondeur-1)), pos_autre, x)) lst_pos 
+  in  Nodmax((build_tree_rec pos_max pos_min profondeur), pos_max, pos_min)
 
 
-(*Definition des fonctions pour analyser l'arbre*)
+(* Définition des fonctions pour analyser l'arbre *)
 let match_tree_nodmax = fun t -> 
   match t with 
   Nodmax (lst,_,_) -> lst 
@@ -584,9 +574,8 @@ let max_lst = fun lst_max ->
     | h::t -> if h>x then max t h else max t x 
   in max lst_max 0 
 
-(*Definition des fonctions d'heuristique (*a completer*)*)
 
-(*Definition des focntions de traitement de l'arbre*)
+(* Définition des fonctions de traitement de l'arbre *)
 let count1=ref 0
 let rec minimax t =
   match t with 
@@ -638,23 +627,19 @@ let application_of_negamax = fun t ->
   negamax t (-max_int) max_int
 
 let play_ia = fun player_max player_min prof player_turn -> 
-  let tree = build_tree_v2 player_max player_min prof player_turn in 
-  let lst_tree = match_tree_nodmax tree in 
-  (* let () = print_tree_v5 tree in  *)
+  let tree = build_tree player_max player_min prof player_turn in 
+  let lst_tree = match_tree_nodmax tree in
   let score_tree = List.map (fun t -> minimax t) lst_tree in
   let m = max_lst score_tree in 
-  (* A modifier pour prendre en compte quand plusieurs valeurs max*)
   let k = number_pos score_tree m in
   let node = elt_of_lst_tree k lst_tree in 
   let new_pos = match_tree_pos_max node in 
   {pos = new_pos; point = m}
 
-
-
-(*Cette fonction permet de jouer au jeu en demandant à l'utilisateur de choisir une position sur la grille où se déplacer.
+(* Cette fonction permet de jouer au jeu en demandant à l'utilisateur de choisir une position sur la grille où se déplacer.
    Si la position choisie n'est pas valide, le joueur doit rejouer.
    Si l'utilisateur entre 0, la partie s'arrête.
-   Sinon, le joueur qui a joué (soit le chat, soit la souris) se déplace et si l'un d'eux gagne, la boucle de jeu se termine.*)
+   Sinon, le joueur qui a joué (soit le chat, soit la souris) se déplace et si l'un d'eux gagne, la boucle de jeu se termine *)
 let play = fun mouse cat ia prof view_ia -> 
   let () = print_endline "Veuillez entrer le numéro de la position pour jouer ou 0 pour quitter" in 
   let gg = ref true in 
@@ -688,13 +673,11 @@ let play = fun mouse cat ia prof view_ia ->
         Printf.printf "Round n°%d\n" (!round); 
         display_v4 mouse cat pos_lst; 
         display_lst_pos_finale pos_lst;
-        if !p =0 then print_endline "Souris a toi de jouer" else print_endline "Chat a toi de jouer";
-        (* On efface l'écran avant de dessiner le damier et le point *)
+        if !p =0 then print_endline "Souris, à toi de jouer" else print_endline "Chat, à toi de jouer";
         Graphics.clear_graph ();
         draw_board (!nb_l-1) (!nb_c-1);
         draw_point (cat.pos_j) ((!nb_l-1) - cat.pos_i) Graphics.red;
         draw_point (mouse.pos_j) ((!nb_l-1) - mouse.pos_i) Graphics.green;
-        (* On met à jour l'affichage *)
         Graphics.synchronize ();
         if (!p) = ia || ia = 2 then
           let player_max = actuel_player in 
@@ -703,7 +686,7 @@ let play = fun mouse cat ia prof view_ia ->
           let pos_first_tree = play_ia player_max player_min 1 p in 
           let new_pos = if (pos_max_tree.point) >= (pos_first_tree.point) then (pos_max_tree.pos) else (pos_first_tree.pos) in 
           if new_pos = impossible_pos then 
-            let () = print_endline "Erreur de l'ia" in 
+            let () = print_endline "Erreur de l'IA" in 
             quit := false 
           else
             let _ = if view_ia = 1 then Graphics.wait_next_event [Graphics.Key_pressed] else Graphics.wait_next_event [Graphics.Poll] in
@@ -738,18 +721,16 @@ let play = fun mouse cat ia prof view_ia ->
             else()  
         else  
           begin
-            (* let new_pos = Scanf.scanf "%d\n" (fun x->x) in (*C'est ici qu'il faudra l'appel a une fonction pour l'ia*) *)
             draw_pos pos_lst;
             Graphics.synchronize ();
-            (* On récupère la touche pressée par l'utilisateur *)
             let key = Graphics.read_key () in
             let new_pos = char_to_num key max_pos in
             if (new_pos < 1 || new_pos > max_pos) then 
               if new_pos = 0 then quit:=false 
-              else let () = print_endline "Position impossible veuillez rejouer" in p := (!p+1) mod 2 
+              else let () = print_endline "Position impossible, veuillez rejouer" in p := (!p+1) mod 2 
             else 
               let play_pos = elt_of_lst new_pos pos_lst in 
-              if play_pos = impossible_pos then print_endline "Mauvaise touche veuillez rejouer" 
+              if play_pos = impossible_pos then print_endline "Mauvaise touche, veuillez rejouer" 
               else 
                 let () = move_player actuel_player play_pos in 
                 let () = round := (!round+1) in 
@@ -789,27 +770,27 @@ let play = fun mouse cat ia prof view_ia ->
 (*Cette fonction demande à l'utilisateur de rentrer la taille de la grille et les positions de départ des joueurs (souris et chat).
    Elle déplace les joueurs vers ces positions et lance la partie.*)
 let () =
-  let () = print_endline "Veuillez rentrer la taille de la grille :\nRentrer le nombre de ligne (longueur verticale) :" in 
+  let () = print_endline "Veuillez rentrer la taille de la grille :\nRentrez le nombre de lignes (longueur verticale) :" in 
   let l = Scanf.scanf "%d\n" (fun x->x) in 
-  let () = print_endline "Rentrer le nombre de colonne (longueur horizontale) :" in 
+  let () = print_endline "Rentrez le nombre de colonnes (longueur horizontale) :" in 
   let c = Scanf.scanf "%d\n" (fun x->x) in 
   let () = nb_c := c in 
   let () = nb_l := l in 
   let mouse = choose_player 1 in 
   let cat = choose_player 2 in 
-  let () = print_endline "Veuillez maintenant choisir les positions de departs: \nRentrer la position de la souris :\ni :" in 
-  let i_mouse = Scanf.scanf "%d\n" (fun x->x) in (*regarder plus tard ici aussi si on fait une verif de pos*) 
+  let () = print_endline "Veuillez maintenant choisir les positions de départ : \nRentrez la position de la souris :\ni :" in 
+  let i_mouse = Scanf.scanf "%d\n" (fun x->x) in
   let () = print_endline "j : " in 
   let j_mouse = Scanf.scanf "%d\n" (fun x->x) in
-  let () = print_endline "Rentrer la position du chat : \ni :" in 
-  let i_cat = Scanf.scanf "%d\n" (fun x->x) in (*regarder plus tard ici aussi si on fait une verif de pos*) 
+  let () = print_endline "Rentrez la position du chat : \ni :" in 
+  let i_cat = Scanf.scanf "%d\n" (fun x->x) in 
   let () = print_endline "j : " in 
   let j_cat = Scanf.scanf "%d\n" (fun x->x) in
   let start_pos_mouse = {i = i_mouse; j = j_mouse} in 
   let start_pos_cat = {i = i_cat; j = j_cat} in 
   let () = move_player mouse start_pos_mouse in
   let () = move_player cat start_pos_cat in 
-  let () = print_endline "Quelle configuration souhaitez vous ? \nMouse ia vs Cat player -> 0 \nMouse player vs Cat ia -> 1 \nMouse ia vs Cat ia -> 2 \nMouse player vs Cat player -> 3" in 
+  let () = print_endline "Quelle configuration souhaitez-vous utiliser ? \nMouse IA vs Cat player -> 0 \nMouse player vs Cat IA -> 1 \nMouse IA vs Cat IA -> 2 \nMouse player vs Cat player -> 3" in 
   let ia = Scanf.scanf "%d\n" (fun x->x) in 
   if ia = 3 then 
     begin
@@ -818,9 +799,9 @@ let () =
     end
   else 
     begin
-      let () = print_endline "Veuillez choisir la profondeur de l'arbre creer par l'IA" in 
+      let () = print_endline "Veuillez choisir la profondeur de l'arbre créé par l'IA" in 
       let prof = Scanf.scanf "%d\n" (fun x->x) in
-      let () = print_endline "Voulez vous appuyer sur une touche pour faire jouer l'ia ? \nOui -> 1 \nNon -> 0" in 
+      let () = print_endline "Voulez-vous appuyer sur une touche pour faire jouer l'IA ? \nOui -> 1 \nNon -> 0" in 
       let view_ia = Scanf.scanf "%d\n" (fun x->x) in
       Graphics.open_graph " 800x800";
       play mouse cat ia prof view_ia 
