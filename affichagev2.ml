@@ -713,7 +713,7 @@ let play = fun mouse cat ia prof view_ia ->
             let () = print_endline "Erreur de l'ia" in 
             quit := false 
           else
-            let s = if view_ia = 1 then let () = print_endline "appuyer sur une touche" in Scanf.scanf "%s\n" (fun x -> x) else "no" in
+            let _ = if view_ia = 1 then Graphics.wait_next_event [Graphics.Key_pressed] else Graphics.wait_next_event [Graphics.Poll] in
             let () = move_player actuel_player new_pos in 
             let () = round := (!round+1) in 
             if actuel_player.role = 1 then 
@@ -723,6 +723,7 @@ let play = fun mouse cat ia prof view_ia ->
                   draw_board (!nb_l-1) (!nb_c-1);
                   draw_point (cat.pos_j) ((!nb_l-1) - cat.pos_i) Graphics.red;
                   draw_point (mouse.pos_j) ((!nb_l-1) - mouse.pos_i) Graphics.green;
+                  Graphics.set_color Graphics.red;
                   Graphics.synchronize ();
                   Unix.sleep 3;
                   Graphics.clear_graph ();
