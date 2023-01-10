@@ -522,7 +522,7 @@ let calcul_score2 = fun pos_cat pos_mouse ->
 let grille_score = fun pos_j2 pos_j1 p_turn p -> 
   if !p_turn = 0 then
     if !p = 0 then
-      500 +calcul_score2 pos_j2 pos_j1
+      500 + calcul_score2 pos_j2 pos_j1
     else
       500 + calcul_score2 pos_j1 pos_j2
   else
@@ -584,7 +584,6 @@ let max_lst = fun lst_max ->
     | h::t -> if h>x then max t h else max t x 
   in max lst_max 0 
 
-(*Definition des fonctions d'heuristique (*a completer*)*)
 
 (*Definition des focntions de traitement de l'arbre*)
 let count1=ref 0
