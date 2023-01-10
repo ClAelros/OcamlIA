@@ -709,19 +709,11 @@ let play = fun mouse cat ia prof view_ia ->
           let pos_max_tree = play_ia player_max player_min prof p in 
           let pos_first_tree = play_ia player_max player_min 1 p in 
           let new_pos = if (pos_max_tree.point) >= (pos_first_tree.point) then (pos_max_tree.pos) else (pos_first_tree.pos) in 
-          (* let tree = build_tree_v2 player_max player_min prof p in 
-          let lst_tree = match_tree_nodmax tree in  *)
-          (* let () = print_tree_v5 tree in  *)
-          (* let score_tree = List.map (fun t -> minimax t) lst_tree in
-          let m = max_lst score_tree in  *)
-          (* A modifier pour prendre en compte quand plusieurs valeurs max*)
-          (* let k = number_pos score_tree m in
-          let node = elt_of_lst_tree k lst_tree in 
-          let new_pos = match_tree_pos_max node in  *)
           if new_pos = impossible_pos then 
             let () = print_endline "Erreur de l'ia" in 
             quit := false 
           else
+            let s = if view_ia = 1 then let () = print_endline "appuyer sur une touche" in Scanf.scanf "%s\n" (fun x -> x) else "no" in
             let () = move_player actuel_player new_pos in 
             let () = round := (!round+1) in 
             if actuel_player.role = 1 then 
