@@ -470,7 +470,7 @@ let init_player = fun r ->
   let () = print_endline "Veuillez entrer la liste des mouvements de votre joueur :" in 
   let lst_move = init_lst_move () in 
   let () = print_endline "Veuillez entrer le nom de la pièce qui représente votre joueur :" in 
-  let n = Scanf.scanf "%s\n" (fun x->x) in 
+  let nom = Scanf.scanf "%s\n" (fun x->x) in 
   let i = 0 in 
   let j = 0 in 
   let init_piece = {name = nom; move = lst_move} in 
@@ -514,7 +514,7 @@ let calcul_score2 = fun pos_cat pos_mouse ->
 let grille_score = fun pos_j2 pos_j1 p_turn prof_node -> 
   if !p_turn = 0 then
     if !prof_node = 0 then
-      500 +calcul_score2 pos_j2 pos_j1
+      500 + calcul_score2 pos_j2 pos_j1
     else
       500 + calcul_score2 pos_j1 pos_j2
   else
@@ -527,9 +527,9 @@ let build_tree = fun player_max player_min profondeur player_turn ->
   let pos_max = {i = player_max.pos_i; j = player_max.pos_j} in
   let pos_min = {i = player_min.pos_i; j = player_min.pos_j} in
   let prof_nodmax = profondeur mod 2 in 
-  let p = ref 0 in 
-  let rec build_tree_rec_v2 = fun pos_maxi pos_mini profondeur -> 
-    let () = p := if (profondeur mod 2) = prof_nodmax then 0 else 1 in   
+  let prof_node = ref 0 in 
+  let rec build_tree_rec = fun pos_maxi pos_mini profondeur -> 
+    let () = prof_node := if (profondeur mod 2) = prof_nodmax then 0 else 1 in   
     let p_max = {role = player_max.role; genre = player_max.genre; pos_i = pos_maxi.i; pos_j = pos_maxi.j} in
     let p_min = {role = player_min.role; genre = player_min.genre; pos_i = pos_mini.i; pos_j = pos_mini.j} in
     if profondeur = 0 then
@@ -540,10 +540,10 @@ let build_tree = fun player_max player_min profondeur player_turn ->
       in let lst_score = List.map (grille_score_tree) lst_pos in 
       List.map (fun x -> Leaves(x)) lst_score 
     else 
-      let lst_pos = if !p = 0 then possible_pos p_max else possible_pos p_min in
-      let pos_autre = if !p = 0 then pos_mini else pos_maxi in
-      if !p = 0 then 
-        List.map(fun x -> Nodmin((build_tree_rec_v2 x pos_autre (profondeur-1)), x, pos_autre)) lst_pos
+      let lst_pos = if !prof_node = 0 then possible_pos p_max else possible_pos p_min in
+      let pos_autre = if !prof_node = 0 then pos_mini else pos_maxi in
+      if !prof_node = 0 then 
+        List.map(fun x -> Nodmin((build_tree_rec x pos_autre (profondeur-1)), x, pos_autre)) lst_pos
       else
         List.map(fun x -> Nodmax((build_tree_rec pos_autre x (profondeur-1)), pos_autre, x)) lst_pos 
   in  Nodmax((build_tree_rec pos_max pos_min profondeur), pos_max, pos_min)
@@ -673,7 +673,7 @@ let play = fun mouse cat ia prof view_ia ->
         Printf.printf "Round n°%d\n" (!round); 
         display_v4 mouse cat pos_lst; 
         display_lst_pos_finale pos_lst;
-        if !p =0 then print_endline "Souris, à toi de jouer" else print_endline "Chat, à toi de jouer";
+        if !turn =0 then print_endline "Souris, à toi de jouer" else print_endline "Chat, à toi de jouer";
         (* On efface l'écran avant de dessiner le damier et le point *)
         Graphics.clear_graph ();
         draw_board (!nb_l-1) (!nb_c-1);
@@ -728,7 +728,7 @@ let play = fun mouse cat ia prof view_ia ->
             let new_pos = char_to_num key max_pos in
             if (new_pos < 1 || new_pos > max_pos) then 
               if new_pos = 0 then quit:=false 
-              else let () = print_endline "Position impossible veuillez rejouer" in p := (!p+1) mod 2 
+              else let () = print_endline "Position impossible veuillez rejouer" in turn := (!turn+1) mod 2 
             else 
               let play_pos = elt_of_lst new_pos pos_lst in 
               if play_pos = impossible_pos then print_endline "Mauvaise touche, veuillez rejouer" 
