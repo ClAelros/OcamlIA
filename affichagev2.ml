@@ -517,7 +517,7 @@ let calcul_score1 = fun pos_cat pos_mouse ->
   (pos_cat.i - pos_mouse.i)*(pos_cat.i - pos_mouse.i) + (pos_cat.j - pos_mouse.j)*(pos_cat.j - pos_mouse.j)
 
 let calcul_score2 = fun pos_cat pos_mouse ->
-  (pos_cat.i - pos_mouse.i)*(pos_cat.i - pos_mouse.i) + (pos_cat.j - pos_mouse.j)*(pos_cat.j - pos_mouse.j) - abs_val ((!nb_c/2) - pos_mouse.i) - abs_val( (!nb_l/2) - pos_mouse.j) 
+  2*((pos_cat.i - pos_mouse.i)*(pos_cat.i - pos_mouse.i) + (pos_cat.j - pos_mouse.j)*(pos_cat.j - pos_mouse.j)) - abs_val ((!nb_c/2) - pos_mouse.i) - abs_val( (!nb_l/2) - pos_mouse.j) 
 
 let grille_score = fun pos_j2 pos_j1 p_turn p -> 
   if !p_turn = 0 then
@@ -662,7 +662,7 @@ let play = fun mouse cat ia prof view_ia ->
   let p = ref 1 in
   let round = ref 0 in 
   while (!gg && !quit) do 
-    if !round = 20 then 
+    if !round = 30 then 
       begin
         Graphics.clear_graph ();
         Graphics.set_font "-*-fixed-medium-r-semicondensed--30-*-*-*-*-*-iso8859-1";
