@@ -661,7 +661,7 @@ let play = fun mouse cat ia prof view_ia ->
   let p = ref 1 in
   let round = ref 0 in 
   while (!gg && !quit) do 
-    if !round = 20 then 
+    if !round = 30 then 
       begin
         Graphics.clear_graph ();
         Graphics.set_font "-*-fixed-medium-r-semicondensed--30-*-*-*-*-*-iso8859-1";
