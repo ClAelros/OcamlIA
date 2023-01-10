@@ -492,8 +492,8 @@ let init_player = fun r ->
       if c = 1 then init_player r 
       else 
         let () = print_endline "Vous avez le choix : \nRoi -> 1 \nReine -> 2 \nFou -> 3 \nTour -> 4 \nCavalier -> 5" in 
-        let p = Scanf.scanf "%d\n" (fun x->x) in 
-        match p with
+        let temp = Scanf.scanf "%d\n" (fun x->x) in 
+        match temp with
         1 -> {role = r; genre = roi; pos_i = 0; pos_j = 0}
         | 2 -> {role = r; genre = reine; pos_i = 0; pos_j = 0}
         | 3 -> {role = r; genre = fou; pos_i = 0; pos_j = 0}
