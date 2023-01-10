@@ -667,11 +667,11 @@ let play = fun mouse cat ia prof view_ia ->
         Graphics.clear_graph ();
         Graphics.set_font "-*-fixed-medium-r-semicondensed--30-*-*-*-*-*-iso8859-1";
         Graphics.set_color Graphics.black;
-        Graphics.moveto (205) (600);
+        Graphics.moveto (745) (740);
         Graphics.draw_string "LIMITE DE ROUNDS ATTEINTE";
-        Graphics.moveto (315) (400);
+        Graphics.moveto (845) (540);
         Graphics.draw_string "SOURIS GAGNE";
-        Graphics.moveto (100) (200);
+        Graphics.moveto (620) (340);
         Graphics.draw_string "PRESSEZ N'IMPORTE QUELLE TOUCHE POUR QUITTER";
         Graphics.synchronize ();
         let _ = Graphics.wait_next_event [Graphics.Key_pressed] in
@@ -716,15 +716,18 @@ let play = fun mouse cat ia prof view_ia ->
                   draw_board (!nb_l-1) (!nb_c-1);
                   draw_point (cat.pos_j) ((!nb_l-1) - cat.pos_i) Graphics.red;
                   draw_point (mouse.pos_j) ((!nb_l-1) - mouse.pos_i) Graphics.green;
-                  Graphics.set_color Graphics.red;
+                  Graphics.set_font "-*-fixed-medium-r-semicondensed--120-*-*-*-*-*-iso8859-1";
+                  Graphics.set_color Graphics.blue;
+                  Graphics.moveto (660) (480);
+                  Graphics.draw_string "GAME OVER";
                   Graphics.synchronize ();
                   Unix.sleep 3;
                   Graphics.clear_graph ();
                   Graphics.set_font "-*-fixed-medium-r-semicondensed--30-*-*-*-*-*-iso8859-1";
                   Graphics.set_color Graphics.black;
-                  Graphics.moveto (325) (500);
+                  Graphics.moveto (850) (640);
                   Graphics.draw_string "CHAT GAGNE";
-                  Graphics.moveto (100) (300);
+                  Graphics.moveto (620) (440);
                   Graphics.draw_string "PRESSEZ N'IMPORTE QUELLE TOUCHE POUR QUITTER";
                   Graphics.synchronize ();
                   let _ = Graphics.wait_next_event [Graphics.Key_pressed] in
@@ -757,14 +760,18 @@ let play = fun mouse cat ia prof view_ia ->
                       draw_board (!nb_l-1) (!nb_c-1);
                       draw_point (cat.pos_j) ((!nb_l-1) - cat.pos_i) Graphics.red;
                       draw_point (mouse.pos_j) ((!nb_l-1) - mouse.pos_i) Graphics.green;
+                      Graphics.set_font "-*-fixed-medium-r-semicondensed--120-*-*-*-*-*-iso8859-1";
+                      Graphics.set_color Graphics.blue;
+                      Graphics.moveto (660) (480);
+                      Graphics.draw_string "GAME OVER";
                       Graphics.synchronize ();
                       Unix.sleep 3;
                       Graphics.clear_graph ();
                       Graphics.set_font "-*-fixed-medium-r-semicondensed--30-*-*-*-*-*-iso8859-1";
                       Graphics.set_color Graphics.black;
-                      Graphics.moveto (325) (500);
+                      Graphics.moveto (850) (640);
                       Graphics.draw_string "CHAT GAGNE";
-                      Graphics.moveto (100) (300);
+                      Graphics.moveto (620) (440);
                       Graphics.draw_string "PRESSEZ N'IMPORTE QUELLE TOUCHE POUR QUITTER";
                       Graphics.synchronize ();
                       let _ = Graphics.wait_next_event [Graphics.Key_pressed] in
@@ -806,7 +813,7 @@ let () =
   let ia = Scanf.scanf "%d\n" (fun x->x) in 
   if ia = 3 then 
     begin
-      Graphics.open_graph " 800x800";
+      Graphics.open_graph " 1920x1080";
       play mouse cat ia 0 0;
     end
   else 
@@ -815,6 +822,6 @@ let () =
       let prof = Scanf.scanf "%d\n" (fun x->x) in
       let () = print_endline "Voulez vous appuyer sur une touche pour faire jouer l'ia ? \nOui -> 1 \nNon -> 0" in 
       let view_ia = Scanf.scanf "%d\n" (fun x->x) in
-      Graphics.open_graph " 800x800";
+      Graphics.open_graph " 1920x1080";
       play mouse cat ia prof view_ia 
     end
