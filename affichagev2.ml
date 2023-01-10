@@ -673,7 +673,7 @@ let play = fun mouse cat ia prof view_ia ->
         Printf.printf "Round n°%d\n" (!round); 
         display_v4 mouse cat pos_lst; 
         display_lst_pos_finale pos_lst;
-        if !p =0 then print_endline "Souris a toi de jouer" else print_endline "Chat a toi de jouer";
+        if !p =0 then print_endline "Souris, à toi de jouer" else print_endline "Chat, à toi de jouer";
         (* On efface l'écran avant de dessiner le damier et le point *)
         Graphics.clear_graph ();
         draw_board (!nb_l-1) (!nb_c-1);
