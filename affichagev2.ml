@@ -522,22 +522,15 @@ let calcul_score2 = fun pos_cat pos_mouse ->
 let grille_score = fun pos_j2 pos_j1 p_turn p -> 
   if !p_turn = 0 then
     if !p = 0 then
-      500 +calcul_score1 pos_j2 pos_j1
+      500 +calcul_score2 pos_j2 pos_j1
     else
-      500 + calcul_score1 pos_j1 pos_j2
+      500 + calcul_score2 pos_j1 pos_j2
   else
     if !p = 0 then
-      500 - calcul_score1 pos_j1 pos_j2
+      500 - calcul_score2 pos_j1 pos_j2
     else
-      500 - calcul_score1 pos_j2 pos_j1
+      500 - calcul_score2 pos_j2 pos_j1
 
-(* A utiliser pour calculer les positions quand plusieurs ressortent avec la même valeur dans le minimax
-   L'appliquer sur la liste des pos qui ont le score max (à créer) puis prendre le max_lst de play_score appliquée à tous les elts de la liste*)
-let play_score = fun pos_max pos_min p_turn ->
-  if !p_turn = 0 then
-      500 + calcul_score1 pos_min pos_max
-  else
-      500 - calcul_score1 pos_max pos_min
 
 
 let build_tree_v2 = fun player_max player_min profondeur player_turn -> 
