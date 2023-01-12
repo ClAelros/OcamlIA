@@ -626,12 +626,26 @@ let application_of_alpha_beta = fun t ->
 let application_of_negamax = fun t -> 
   negamax t (-max_int) max_int
 
+let rectif_score = fun lst_tree lst_score cat -> 
+  let lst_pos_cat = possible_pos cat in 
+  let rec match_rec = fun lst1 lst2 lst3 -> 
+    match lst1, lst2 with 
+    ([], []) -> lst3 
+    | (f::l, h::q) -> 
+      let pos = match_tree_pos_max f in 
+      let a = if (verif_pos lst_pos_cat pos) then h-200 else h in 
+      match_rec l q (a::lst3)
+    | _ -> [] 
+  in let lst = match_rec lst_tree lst_score [] in 
+  List.rev lst
+
 let play_ia = fun player_max player_min prof player_turn -> 
   let tree = build_tree player_max player_min prof player_turn in 
   let lst_tree = match_tree_nodmax tree in
   let score_tree = List.map (fun t -> minimax t) lst_tree in
-  let m = max_lst score_tree in 
-  let k = number_pos score_tree m in
+  let rectif_score_tree = if !player_turn = 0 then rectif_score lst_tree score_tree player_min else score_tree in 
+  let m = max_lst rectif_score_tree in 
+  let k = number_pos rectif_score_tree m in
   let node = elt_of_lst_tree k lst_tree in 
   let new_pos = match_tree_pos_max node in 
   {pos = new_pos; point = m}
