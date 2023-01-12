@@ -606,25 +606,10 @@ let rec alphabeta t alpha beta =
         else loop temp b q 
     in loop alpha beta lst   
 
-let count3=ref 0
-let rec negamax t alpha beta =
-  match t with 
-  Leaves s -> let () = count3 := !count3 +1 in s 
-  | Nodmin (lst, _, _) | Nodmax (lst, _, _) ->
-    let rec loop = fun lst_n s -> 
-      match lst_n with 
-      [] -> s 
-      | h::q ->
-        let temp = max s (-(negamax h (-beta) (-s))) in 
-        if temp >= beta then temp
-        else loop q temp 
-    in loop lst alpha 
 
 let application_of_alpha_beta = fun t -> 
   alphabeta t (-max_int) max_int
 
-let application_of_negamax = fun t -> 
-  negamax t (-max_int) max_int
 
 let rectif_score = fun lst_tree lst_score cat -> 
   let lst_pos_cat = possible_pos cat in 
