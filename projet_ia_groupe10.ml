@@ -716,7 +716,7 @@ let play = fun mouse cat ia prof view_ia ->
                   draw_point (mouse.pos_j) ((!nb_l-1) - mouse.pos_i) Graphics.green;
                   Graphics.set_font "-*-fixed-medium-r-semicondensed--80-*-*-*-*-*-iso8859-1";
                   Graphics.set_color Graphics.blue;
-                  Graphics.moveto (35) (160);
+                  Graphics.moveto (230) (350);
                   Graphics.draw_string "GAME OVER";
                   Graphics.synchronize ();
                   Unix.sleep 3;
@@ -758,7 +758,7 @@ let play = fun mouse cat ia prof view_ia ->
                       draw_point (mouse.pos_j) ((!nb_l-1) - mouse.pos_i) Graphics.green;
                       Graphics.set_font "-*-fixed-medium-r-semicondensed--80-*-*-*-*-*-iso8859-1";
                       Graphics.set_color Graphics.blue;
-                      Graphics.moveto (35) (160);
+                      Graphics.moveto (230) (350);
                       Graphics.draw_string "GAME OVER";
                       Graphics.synchronize ();
                       Unix.sleep 3;
